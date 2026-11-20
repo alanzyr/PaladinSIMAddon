@@ -4,7 +4,7 @@
 local ADDON, RS = ...
 if RS.notPaladin then return end
 
-local ICON = 'Interface\\Icons\\Ability_Warrior_InnerRage'
+local ICON = 'Interface\\Icons\\Spell_Holy_AuraOfLight'   -- Retribution Aura: the Retribution tree's own icon
 local button
 
 local function minimap() return Minimap or (MinimapCluster and MinimapCluster.Minimap) end
