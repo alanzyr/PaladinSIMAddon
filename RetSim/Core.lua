@@ -243,6 +243,7 @@ local HELP = {
   '/rsim item [shift-click an item] - sim that item against what you wear',
   '/rsim click on | off - Shift + right-click on an item sims it',
   '/rsim export - a code of your gear, enchants, talents and rotation for the website (Import > Addon)',
+  '/rsim minimap - show or hide the minimap button',
   '/rsim test - the maths check against the website',
   '/rsim dump - what the game returned, as text to copy and send',
 }
@@ -288,6 +289,10 @@ SlashCmdList['RETSIM'] = function(msg)
       RS.print('Export code made: ' .. n .. ' items, ' .. e .. ' enchants. Paste it on the website under Import > Addon.')
       if RS.showDump then RS.showDump(code, 'Your export code. Click in the text, press Ctrl+A, then Ctrl+C, and paste it on the website under Import > Addon.') end
     end
+  elseif cmd == 'minimap' then
+    RS.db.options.minimapButton = RS.db.options.minimapButton == false
+    if RS.updateMinimapButton then RS.updateMinimapButton() end
+    RS.print('The minimap button is ' .. (RS.db.options.minimapButton and 'shown.' or 'hidden. Type /rsim minimap to bring it back.'))
   elseif cmd == 'test' then
     local ok, lines = RS.selfTest()
     for i = 1, #lines do RS.print(lines[i]) end

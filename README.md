@@ -25,7 +25,7 @@ If you play a Warlock, you want Xn's addon: [CurseForge](https://www.curseforge.
 [original repository](https://github.com/XNWLK/WarlockSIMAddon). This repository only holds the paladin addon, in the
 folder `RetSim`.
 
-> **Status: version 0.3, a test version.** It reads your character, plays the fights, shows your DPS with a line per
+> **Status: version 0.4, a test version.** It reads your character, plays the fights, shows your DPS with a line per
 > damage source, and sims a single item against what you wear. Built for the WoW: Forever client (interface 16001).
 
 ## Install
@@ -34,7 +34,7 @@ folder `RetSim`.
 2. Copy the folder `RetSim` from it into `World of Warcraft\_forever_\Interface\AddOns`, so that there is a folder
    `AddOns\RetSim`.
 3. Restart the game and tick **Forever Ret Sim** in the AddOns list.
-4. Type `/rsim` to open the window; Escape closes it.
+4. Click the minimap button to sim your character, or type `/rsim` to open the window; Escape closes it.
 
 The addon only loads on a Paladin. On another class it says so in chat and does nothing else.
 
@@ -52,6 +52,8 @@ character's level and race, not its name.
 
 ## What it does
 
+- **A minimap button:** click it and your character is read and simmed, no typing. Right-click opens or closes the
+  window; drag it to move it around the minimap.
 - **Sim your character:** your DPS with its margin, the lowest and highest fight, and a line per damage source with its
   share.
 - **Rotations:** the best seal twist for your weapon is picked automatically, or choose one yourself: 3x Seal of Command
@@ -95,6 +97,7 @@ The panel that opens tells you the difference in DPS and what was counted ("+18 
 | `/rsim item [link]` | Sims the item whose link you Shift-click into the chat line. |
 | `/rsim click on` / `off` | Shift + right-click on an item sims it, or not. |
 | `/rsim export` | A code of your gear, enchants, talents, race and rotation for the website (Import > Addon). |
+| `/rsim minimap` | Shows or hides the minimap button. |
 | `/rsim test` | The maths check against the website. |
 | `/rsim dump` | What the game returned, as text to copy. |
 

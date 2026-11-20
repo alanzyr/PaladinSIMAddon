@@ -198,6 +198,12 @@ step('a character sim after item sims still lands in the window; the dump holds 
     console.log('ok   the code read back: ' + Object.keys(j.items).length + ' items by inventory slot, the weapon with its enchant, talents ' + j.talents + ', rotation ' + j.mode);
   }
 }
+step('the minimap button: click sims the character, right-click opens and closes, /rsim minimap hides it', `local b = RetSimMinimapButton; assert(b and b:IsShown(), "no button after login")
+  RetSimFrame:Hide(); b.scripts.OnClick(b, "LeftButton"); assert(RetSimFrame:IsShown() and RSX.jobRunning(), "the click did not start a sim"); b.scripts.OnClick(b, "LeftButton"); assert(RSX.jobRunning()); ${PUMP}
+  assert(RSX.last and RSX.last.fights == ${FIGHTS}); b.scripts.OnClick(b, "RightButton"); assert(not RetSimFrame:IsShown()); b.scripts.OnClick(b, "RightButton"); assert(RetSimFrame:IsShown() and not RSX.jobRunning())
+  PAL.combat = true; RSX.char = nil; b.scripts.OnClick(b, "LeftButton"); PAL.combat = false; assert(not RSX.jobRunning() and MOCK.chat[#MOCK.chat]:find("in combat", 1, true), "no sentence in combat")
+  b.scripts.OnEnter(b); b.scripts.OnLeave(b); b.scripts.OnDragStart(b); b.scripts.OnUpdate(b); b.scripts.OnDragStop(b); assert(type(RSX.db.options.minimapAngle) == "number")
+  SlashCmdList.RETSIM("minimap"); assert(not b:IsShown() and RSX.db.options.minimapButton == false); SlashCmdList.RETSIM("minimap"); assert(b:IsShown()); return string.format("%.1f DPS from the click", RSX.last.mean)`);
 console.log(host.limits());
 console.log(failed ? failed + ' step(s) FAILED' : 'all steps passed');
 process.exit(failed ? 1 : 0);
