@@ -25,7 +25,7 @@ If you play a Warlock, you want Xn's addon: [CurseForge](https://www.curseforge.
 [original repository](https://github.com/XNWLK/WarlockSIMAddon). This repository only holds the paladin addon, in the
 folder `RetSim`.
 
-> **Status: version 0.2, a test version.** It reads your character, plays the fights, shows your DPS with a line per
+> **Status: version 0.3, a test version.** It reads your character, plays the fights, shows your DPS with a line per
 > damage source, and sims a single item against what you wear. Built for the WoW: Forever client (interface 16001).
 
 ## Install
@@ -60,12 +60,15 @@ character's level and race, not its name.
   window - how much DPS it would gain or lose you against what you wear in its slot (a ring or trinket against each of
   the two). Click an item link in chat and a **Sim this item** button sits under its window; a small **Sim** button sits
   beside every Need / Greed popup. The same fights are played on both sides, so small differences show.
+- **Export to the website:** `/rsim export` or the **Export** button makes a code of everything you wear with its
+  enchants, your talents, race and rotation. Paste it on the [website](https://alanzyr.github.io/Forever-Ret-Sim/) under
+  **Import > Addon** and your character is set up there.
 - **Raid buffs and debuffs** on or off in one click.
 - **Your weapon and its enchant:** damage and speed from the tooltip; Crusader and the Forever "Grand" enchants count as
   an average uptime; Blade of Hanna's proc and Libram of Law are played in the fight.
 
-Not there yet: consumables as settings, trinkets and other procs, set bonuses, stat weights, and codes to and from the
-website.
+Not there yet: consumables as settings, trinkets and other procs, set bonuses, stat weights, and codes from the website
+into the addon.
 
 ### Sim an item
 
@@ -91,6 +94,7 @@ The panel that opens tells you the difference in DPS and what was counted ("+18 
 | `/rsim buffs on` / `off` | The usual raid buffs and debuffs, or none. |
 | `/rsim item [link]` | Sims the item whose link you Shift-click into the chat line. |
 | `/rsim click on` / `off` | Shift + right-click on an item sims it, or not. |
+| `/rsim export` | A code of your gear, enchants, talents, race and rotation for the website (Import > Addon). |
 | `/rsim test` | The maths check against the website. |
 | `/rsim dump` | What the game returned, as text to copy. |
 
@@ -119,6 +123,7 @@ cd tools
 npm install                  # once: the Lua runner the checks use
 node gen-ret-data.js         # the website's data -> RetSim/Data.lua and RetSim/Expected.lua
 node check-ret-items.js      # every item of the website through the addon's item reader
+node check-ret-export.js     # the export code, made by the addon and read back the way the website does
 node check-ret-engine.js     # the same fights in both engines ("full" for more); takes a few minutes
 node check-ret-addon.js      # the whole addon against a stand-in for the game
 ```

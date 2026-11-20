@@ -3,7 +3,7 @@
 local ADDON, RS = ...
 if RS.notPaladin then return end
 
-local W, H, ROWS = 400, 500, 16
+local W, H, ROWS = 400, 530, 16
 local frame, dumpFrame
 local ui = {}
 
@@ -89,6 +89,8 @@ local function build()
   ui.mode:SetPoint('LEFT', ui.sim, 'RIGHT', 6, 0)
   ui.buffs = button(frame, 'Buffs', 90, function() RS.setBuffs(not RS.buffsOn()); RS.refresh() end)
   ui.buffs:SetPoint('LEFT', ui.mode, 'RIGHT', 6, 0)
+  ui.export = button(frame, 'Export', 64, function() SlashCmdList['RETSIM']('export') end)
+  ui.export:SetPoint('BOTTOMLEFT', ui.sim, 'TOPLEFT', 0, 6)
   ui.dump = button(frame, 'Dump', 56, function() RS.showDump(RS.dumpText()) end)
   ui.dump:SetPoint('LEFT', ui.buffs, 'RIGHT', 6, 0)
 
@@ -146,7 +148,7 @@ function RS.toggleWindow()
 end
 
 -- A window with the dump as text: Ctrl+A, Ctrl+C copies it.
-function RS.showDump(body)
+function RS.showDump(body, heading)
   if not dumpFrame then
     dumpFrame = CreateFrame('Frame', 'RetSimDumpFrame', UIParent)
     dumpFrame:SetSize(520, 420)
@@ -157,7 +159,7 @@ function RS.showDump(body)
     if UISpecialFrames then UISpecialFrames[#UISpecialFrames + 1] = 'RetSimDumpFrame' end
     local head = text(dumpFrame, 'GameFontNormal')
     head:SetPoint('TOPLEFT', dumpFrame, 'TOPLEFT', 12, -10)
-    head:SetText('Click in the text, press Ctrl+A, then Ctrl+C to copy it.')
+    dumpFrame.head = head
     local close = CreateFrame('Button', nil, dumpFrame, 'UIPanelCloseButton')
     close:SetPoint('TOPRIGHT', dumpFrame, 'TOPRIGHT', -2, -2)
     local scroll = CreateFrame('ScrollFrame', 'RetSimDumpScroll', dumpFrame, 'UIPanelScrollFrameTemplate')
@@ -172,6 +174,7 @@ function RS.showDump(body)
     scroll:SetScrollChild(box)
     dumpFrame.box = box
   end
+  dumpFrame.head:SetText(heading or 'Click in the text, press Ctrl+A, then Ctrl+C to copy it.')
   dumpFrame.box:SetText(body or '')
   dumpFrame:Show()
   dumpFrame.box:SetFocus()

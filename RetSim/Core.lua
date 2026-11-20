@@ -139,6 +139,28 @@ function RS.simCharacter()
   end)
 end
 
+-- The export code for the website (Import > Addon): what you wear with its enchants, talents, race and rotation.
+-- Returns the code and how many items and enchants it holds, or nil and a plain sentence.
+function RS.exportCode()
+  if InCombatLockdown and InCombatLockdown() then return nil, 'You are in combat. The game hides your items from addons then - make the code after the fight.' end
+  local ok, why = RS.doReadCharacter()
+  if not ok then return nil, why end
+  local items, n, e = {}, 0, 0
+  for inv = 1, 18 do
+    local link = RS.try(GetInventoryItemLink, 'player', inv)
+    if type(link) == 'string' then
+      local id, ench = tonumber(link:match('item:(%d+)')), tonumber(link:match('item:%d+:(%d+)'))
+      if id then
+        items[inv] = { id = id, enchant = ench }
+        n = n + 1
+        if ench and ench > 0 then e = e + 1 end
+      end
+    end
+  end
+  local ch = RS.char
+  return RS.encodeExport({ race = ch.raceKey, talents = ch.talents, mode = RS.db.options.mode, items = items }), n, e
+end
+
 -- The maths check: the fights of Expected.lua played here must give the website's numbers.
 function RS.selfTest()
   local okAll, lines = true, {}
@@ -220,6 +242,7 @@ local HELP = {
   '/rsim buffs on | off - every raid buff and debuff on or off',
   '/rsim item [shift-click an item] - sim that item against what you wear',
   '/rsim click on | off - Shift + right-click on an item sims it',
+  '/rsim export - a code of your gear, enchants, talents and rotation for the website (Import > Addon)',
   '/rsim test - the maths check against the website',
   '/rsim dump - what the game returned, as text to copy and send',
 }
@@ -258,6 +281,13 @@ SlashCmdList['RETSIM'] = function(msg)
   elseif cmd == 'click' then
     if arg == 'on' or arg == 'off' then RS.db.options.itemClick = arg == 'on' end
     RS.print('Shift + right-click on an item ' .. (RS.db.options.itemClick and 'sims it.' or 'does nothing here.'))
+  elseif cmd == 'export' then
+    local code, n, e = RS.exportCode()
+    if not code then RS.print(n)
+    else
+      RS.print('Export code made: ' .. n .. ' items, ' .. e .. ' enchants. Paste it on the website under Import > Addon.')
+      if RS.showDump then RS.showDump(code, 'Your export code. Click in the text, press Ctrl+A, then Ctrl+C, and paste it on the website under Import > Addon.') end
+    end
   elseif cmd == 'test' then
     local ok, lines = RS.selfTest()
     for i = 1, #lines do RS.print(lines[i]) end

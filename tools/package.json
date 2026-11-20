@@ -5,7 +5,7 @@
   "description": "Maintainer tools for the addon Forever Ret Sim: data generator and checks. Not part of the addon.",
   "scripts": {
     "sync": "node gen-ret-data.js",
-    "check": "node check-ret-items.js && node check-ret-addon.js && node check-ret-engine.js"
+    "check": "node check-ret-items.js && node check-ret-export.js && node check-ret-addon.js && node check-ret-engine.js"
   },
   "dependencies": {
     "fengari": "^0.1.5"

@@ -187,6 +187,17 @@ step('/rsim click off: the click does nothing; on again', `SlashCmdList.RETSIM("
   SlashCmdList.RETSIM("click on"); HandleModifiedItemClick(MOCK.link(5003), MOCK.bagLocation()); MOCK.keys.shift = false; assert(RSX.jobRunning()); ${PUMP}`);
 step('a character sim after item sims still lands in the window; the dump holds the last item', `SlashCmdList.RETSIM("sim"); ${PUMP}; assert(RSX.last and RSX.last.fights == ${FIGHTS})
   local t = RSX.dumpText(); assert(t:find("lastItem", 1, true) and t:find("ITEM_MOD_CRIT_RATING_SHORT", 1, true), "the dump lacks the last item")`);
+{
+  const code = step('/rsim export and the Export button: the code of what you wear', `local n = #MOCK.chat; SlashCmdList.RETSIM("export"); assert(RetSimDumpFrame:IsShown(), "no window with the code")
+    assert(MOCK.chat[#MOCK.chat]:find("4 items, 1 enchants", 1, true), MOCK.chat[#MOCK.chat]); RetSimDumpFrame:Hide(); SlashCmdList.RETSIM(""); MOCK.click("Export"); assert(RetSimDumpFrame:IsShown())
+    PAL.combat = true; local c, why = RSX.exportCode(); PAL.combat = false; assert(c == nil and why:find("in combat", 1, true)); return (RSX.exportCode())`);
+  if (code) {
+    const j = JSON.parse(Buffer.from(code.slice(5), 'base64').toString('utf8'));
+    assert.deepStrictEqual(j.items, { 11: { id: 5004 }, 12: { id: 5005 }, 16: { id: 5001, enchant: 1900 }, 18: { id: 272435 } });
+    assert.strictEqual(j.race, 'human'); assert.strictEqual(j.talents, '050250002-501-05233011201301351'); assert.strictEqual(j.mode, 'auto');
+    console.log('ok   the code read back: ' + Object.keys(j.items).length + ' items by inventory slot, the weapon with its enchant, talents ' + j.talents + ', rotation ' + j.mode);
+  }
+}
 console.log(host.limits());
 console.log(failed ? failed + ' step(s) FAILED' : 'all steps passed');
 process.exit(failed ? 1 : 0);
