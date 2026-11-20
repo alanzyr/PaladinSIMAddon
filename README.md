@@ -25,8 +25,8 @@ If you play a Warlock, you want Xn's addon: [CurseForge](https://www.curseforge.
 [original repository](https://github.com/XNWLK/WarlockSIMAddon). This repository only holds the paladin addon, in the
 folder `RetSim`.
 
-> **Status: version 0.1, a first test version.** It reads your character, plays the fights and shows your DPS with a line
-> per damage source. Built for the WoW: Forever client (interface 16001).
+> **Status: version 0.2, a test version.** It reads your character, plays the fights, shows your DPS with a line per
+> damage source, and sims a single item against what you wear. Built for the WoW: Forever client (interface 16001).
 
 ## Install
 
@@ -56,12 +56,29 @@ character's level and race, not its name.
   share.
 - **Rotations:** the best seal twist for your weapon is picked automatically, or choose one yourself: 3x Seal of Command
   into Seal of Righteousness, 2x Righteousness into Command, 3x Righteousness into Fury, one seal only, or Shockadin.
+- **Sim an item:** Shift + right-click an item in your bags, on your character sheet, at a vendor or in a loot or quest
+  window - how much DPS it would gain or lose you against what you wear in its slot (a ring or trinket against each of
+  the two). Click an item link in chat and a **Sim this item** button sits under its window; a small **Sim** button sits
+  beside every Need / Greed popup. The same fights are played on both sides, so small differences show.
 - **Raid buffs and debuffs** on or off in one click.
 - **Your weapon and its enchant:** damage and speed from the tooltip; Crusader and the Forever "Grand" enchants count as
   an average uptime; Blade of Hanna's proc and Libram of Law are played in the fight.
 
-Not there yet: consumables as settings, trinkets, set bonuses that are procs, stat weights, simming a single item, and
-codes to and from the website.
+Not there yet: consumables as settings, trinkets and other procs, set bonuses, stat weights, and codes to and from the
+website.
+
+### Sim an item
+
+The panel that opens tells you the difference in DPS and what was counted ("+18 Strength, +28 Crit Rating, weapon
+152-255 at 3.60").
+
+- **An item you are wearing** is simmed against an empty slot: what the item is worth to you.
+- **A two-hand weapon** brings its damage and speed with it; with the rotation on auto, each side plays its own best twist.
+- **Your enchant on the slot** is taken to move to the new item. Set bonuses are not counted, and "Use:" and "Chance on
+  hit:" effects are named, not simulated.
+- One-hand weapons, shields and off-hand items are not compared: the sim plays two-hand weapons only.
+
+`/rsim click off` switches the click off if Shift + right-click is taken by another addon.
 
 ## Commands
 
@@ -71,7 +88,9 @@ codes to and from the website.
 | `/rsim sim` | Reads your character and sims it. |
 | `/rsim mode auto` | The rotation: `auto`, `socSor`, `sorSoc`, `sorFury`, `socOnly`, `sorOnly`, `shock`. |
 | `/rsim fights 500` | How many fights a sim plays (300 to begin with). |
-| `/rsim buffs on` / `off` | Every raid buff and debuff on or off. |
+| `/rsim buffs on` / `off` | The usual raid buffs and debuffs, or none. |
+| `/rsim item [link]` | Sims the item whose link you Shift-click into the chat line. |
+| `/rsim click on` / `off` | Shift + right-click on an item sims it, or not. |
 | `/rsim test` | The maths check against the website. |
 | `/rsim dump` | What the game returned, as text to copy. |
 
@@ -99,6 +118,7 @@ engine (`RetSim/Engine.lua`, `RetSim/Sim.lua`). With the website's repository
 cd tools
 npm install                  # once: the Lua runner the checks use
 node gen-ret-data.js         # the website's data -> RetSim/Data.lua and RetSim/Expected.lua
+node check-ret-items.js      # every item of the website through the addon's item reader
 node check-ret-engine.js     # the same fights in both engines ("full" for more); takes a few minutes
 node check-ret-addon.js      # the whole addon against a stand-in for the game
 ```

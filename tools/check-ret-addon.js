@@ -47,10 +47,21 @@ function boot(cls) {
     function UnitPowerMax() return PAL.sheet.mana end
     function UnitDamage() return 300, 400, 0, 0, 0, 0, 1 end
     function UnitAttackSpeed() return PAL.sheet.wSpeed end
-    function GetInventoryItemID(_, slot) return ({ [16] = 19323, [18] = 272435 })[slot] end
-    function GetInventoryItemLink(_, slot) if slot == 16 then return '|cffa335ee|Hitem:19323:1900:0:0|h[The Unstoppable Force]|h|r' end end
-    C_TooltipInfo = { GetInventoryItem = function() return { lines = { { leftText = 'The Unstoppable Force' }, { leftText = 'Two-Hand', rightText = 'Mace' },
-      { leftText = PAL.sheet.wMin .. ' - ' .. PAL.sheet.wMax .. ' Damage', rightText = string.format('Speed %.2f', PAL.sheet.wSpeed) } } } end }
+    MOCK.items = {
+      [5001] = { name = 'The Unstoppable Force', loc = 'INVTYPE_2HWEAPON', class = 2, sub = 5, ench = 1900, api = { ITEM_MOD_STRENGTH_SHORT = 18, ITEM_MOD_STAMINA_SHORT = 17, ITEM_MOD_CRIT_RATING_SHORT = 28 },
+                 lines = { 'The Unstoppable Force', 'Two-Hand', '152 - 255 Damage   Speed 3.60', '+18 Strength', 'Chance on hit: Stuns target for 1 sec.', 'Enchanted: Crusader' } },
+      [5002] = { name = 'Arcanite Reaper', loc = 'INVTYPE_2HWEAPON', class = 2, sub = 1, api = {}, lines = { 'Arcanite Reaper', 'Two-Hand', '153 - 256 Damage   Speed 3.80', '+13 Stamina', 'Equip: +62 Attack Power' } },
+      [5003] = { name = 'Band of Julio', loc = 'INVTYPE_FINGER', class = 4, sub = 0, api = { ITEM_MOD_STAMINA_SHORT = 10, ITEM_MOD_CRIT_RATING_SHORT = 14, ITEM_MOD_HIT_RATING_SHORT = 10, ITEM_MOD_ATTACK_POWER_SHORT = 14 }, lines = { 'Band of Julio', 'Finger' } },
+      [5004] = { name = 'Plain Ring', loc = 'INVTYPE_FINGER', class = 4, sub = 0, api = { ITEM_MOD_STRENGTH_SHORT = 5 }, lines = { 'Plain Ring' } },
+      [5005] = { name = 'Odd Ring', loc = 'INVTYPE_FINGER', class = 4, sub = 0, api = {}, lines = { 'Odd Ring', '+12 Strength', 'Use: Summons a cat. (10 Min Cooldown)' } },
+      [272435] = { name = 'Libram of Law', loc = 'INVTYPE_RELIC', class = 4, sub = 7, api = {}, lines = { 'Libram of Law', 'Equip: Your Judgements deal 4% more damage.' } },
+      [5007] = { name = 'Wall Shield', loc = 'INVTYPE_SHIELD', class = 4, sub = 6, api = { ITEM_MOD_STAMINA_SHORT = 9 }, lines = { 'Wall Shield' } },
+      [5008] = { name = 'Bread', loc = '', class = 0, sub = 0, api = {}, lines = { 'Bread' } },
+    }
+    MOCK.equipped = { [16] = 5001, [18] = 272435, [11] = 5004, [12] = 5005 }
+    MOCK.refItem = nil
+    C_TooltipInfo.GetInventoryItem = function() return { lines = { { leftText = 'The Unstoppable Force' }, { leftText = 'Two-Hand', rightText = 'Mace' },
+      { leftText = PAL.sheet.wMin .. ' - ' .. PAL.sheet.wMax .. ' Damage', rightText = string.format('Speed %.2f', PAL.sheet.wSpeed) } } } end
     MOCK.auras = { { name = 'Greater Blessing of Kings', spellId = 25898 }, { name = 'Mark of the Wild', spellId = 9885 }, { name = 'Retribution Aura', spellId = 10301 }, { name = 'Well Fed', spellId = 1 } }
     C_SpecializationInfo = { GetActiveSpecGroup = function() return 1 end, GetCombatConfigIDForSpecGroup = function() return 7 end }
     C_Traits = {
@@ -99,10 +110,10 @@ step('read the character: the sheet turned back into the sim\'s values', `SlashC
   assert(#c.otherAuras == 1 and c.otherAuras[1] == "Well Fed", "other auras: " .. table.concat(c.otherAuras, ","))
   assert(v.judgeMult == 1.04 and v.hanna == false and c.worn.mainEnchant == 1900 and c.raw.weaponFrom == "tooltip")
   return string.format("Str %.1f, Int %.1f, AP from gear %.1f, crit %.2f, weapon %d-%d at %.1f; notes: %s", v.str, v.int, v.apGear, v.crit, v.wMin, v.wMax, v.wSpeed, table.concat(RSX.valueNotes, " / "))`);
-step('the weapon without a tooltip comes from the character sheet', `local keep = C_TooltipInfo; C_TooltipInfo = nil
+step('the weapon without a tooltip comes from the character sheet', `local keep = C_TooltipInfo.GetInventoryItem; C_TooltipInfo.GetInventoryItem = nil
   UnitDamage = function() local ap, s = PAL.sheet.ap, PAL.sheet.wSpeed; return (PAL.sheet.wMin + ap / 14 * s) * 1.06, (PAL.sheet.wMax + ap / 14 * s) * 1.06, 0, 0, 0, 0, 1.06 end
   UnitAttackSpeed = function() return PAL.sheet.wSpeed / (1 + PAL.sheet.haste / 100) end
-  assert(RSX.doReadCharacter()); local v = RSX.values; C_TooltipInfo = keep
+  assert(RSX.doReadCharacter()); local v = RSX.values; C_TooltipInfo.GetInventoryItem = keep
   assert(math.abs(v.wMin - PAL.sheet.wMin) < 1e-6 and math.abs(v.wMax - PAL.sheet.wMax) < 1e-6 and math.abs(v.wSpeed - PAL.sheet.wSpeed) < 1e-6, v.wMin .. " " .. v.wMax .. " " .. v.wSpeed)
   assert(RSX.doReadCharacter()); return RSX.char.raw.weaponFrom`);
 // a sim with a fixed rotation and seed: the same fights in the website's engine
@@ -119,7 +130,7 @@ const expV = JS.applyTalents(ranks, Object.assign({}, v0, { str: v0.str + 100 * 
 step('auto rotation: the best twist is tried first', `SlashCmdList.RETSIM("mode auto"); SlashCmdList.RETSIM("sim"); local _, total = RSX.jobProgress(); assert(total == ${FIGHTS} + 180, "total " .. tostring(total)); ${PUMP}
   local r = RSX.last; assert(r.mode.auto and RSX.MODES[r.mode.key].twist); return r.mode.name .. string.format(", %.1f DPS", r.mean)`);
 step('buffs off lowers the result; on again', `local with = RSX.last.mean; SlashCmdList.RETSIM("buffs off"); assert(not RSX.buffsOn()); SlashCmdList.RETSIM("sim"); ${PUMP}
-  local without = RSX.last.mean; assert(without < with * 0.9, with .. " -> " .. without); SlashCmdList.RETSIM("buffs on"); assert(RSX.buffsOn() and RSX.db.settings.jotcExt == false); return string.format("%.1f -> %.1f DPS", with, without)`);
+  local without = RSX.last.mean; assert(without < with * 0.9, with .. " -> " .. without); SlashCmdList.RETSIM("buffs on"); assert(RSX.buffsOn() and RSX.db.settings.arthas == nil and RSX.db.settings.kings == nil); return string.format("%.1f -> %.1f DPS", with, without)`);
 step('the buttons: Sim, Stop, rotation, buffs', `MOCK.click("Sim"); assert(RSX.jobRunning()); MOCK.frame(); MOCK.click("Stop"); assert(not RSX.jobRunning())
   local before = RSX.db.options.mode; MOCK.click(RSX.modeName(before)); assert(RSX.db.options.mode ~= before); MOCK.click("Buffs: on"); assert(not RSX.buffsOn()); MOCK.click("Buffs: off"); assert(RSX.buffsOn())
   return "rotation now " .. RSX.modeName(RSX.db.options.mode)`);
@@ -129,6 +140,53 @@ step('the dump', `SlashCmdList.RETSIM("dump"); assert(RetSimDumpFrame and RetSim
 step('open and close with /rsim; help and unknown words', 'RetSimFrame:Hide(); SlashCmdList.RETSIM(""); assert(RetSimFrame:IsShown()); SlashCmdList.RETSIM(""); assert(not RetSimFrame:IsShown()); local n = #MOCK.chat; SlashCmdList.RETSIM("help"); assert(#MOCK.chat > n + 4); SlashCmdList.RETSIM("mode nonsense"); SlashCmdList.RETSIM("fights x")');
 step('a value the game hides becomes a sentence, not an error', `local keep = GetCritChance; GetCritChance = function() error("hidden") end; local ok, why = RSX.doReadCharacter(); GetCritChance = keep
   assert(not ok and why:find("melee crit", 1, true), tostring(why)); assert(RSX.doReadCharacter()); return why`);
+// ---- sim an item
+const N = 30;
+function pairedJS(a, b, modeKey) {
+  const ca = JS.derive(a), cb = JS.derive(b), ma = JS.resolveMode(modeKey, a.wSpeed), mb = JS.resolveMode(modeKey, b.wSpeed);
+  let s = 0; for (let i = 0; i < N; i++) { const seed = 4242 * 7919 + i * 104729; s += JS.simulate(cb, mb, seed, false).dps - JS.simulate(ca, ma, seed, false).dps; }
+  return s / N;
+}
+{
+  // Band of Julio instead of Plain Ring (5 Strength): -5 Str, +14 crit rating, +10 hit rating, +14 Attack Power
+  const alt = Object.assign({}, expV, { str: expV.str - 5, crit: expV.crit + 1, spellCrit: expV.spellCrit + 1, hit: expV.hit + 1, spellHit: expV.spellHit + 1, apGear: expV.apGear + 14 });
+  const want = pairedJS(expV, alt, 'socSor');
+  step('/rsim item with a ring: against each of the two you wear, the website\'s difference', `RSX.db.options.itemFights = ${N}; RSX.db.settings = {}; SlashCmdList.RETSIM("mode socSor")   -- the settings back to the defaults: the buttons above turned every buff on
+    SlashCmdList.RETSIM("item " .. MOCK.link(5003)); assert(RetSimItemPanel and RetSimItemPanel:IsShown(), "panel"); assert(RSX.jobRunning(), "no job"); ${PUMP}
+    local r = RSX.lastItemResult; assert(r and #r.alts == 2, "alternatives"); assert(r.alts[1].label == "Plain Ring" and r.alts[2].label == "Odd Ring")
+    assert(math.abs(r.alts[1].diff - ${want}) < 1e-6, "difference " .. r.alts[1].diff .. " instead of ${want}")
+    assert(r.alts[1].delta.str == -5 and r.alts[1].delta.crit == 14 and r.alts[1].delta.hit == 10 and r.alts[1].delta.ap == 14 and r.alts[2].delta.str == -12)
+    assert(MOCK.findLike("FontString", "Instead of Plain Ring"), "the answer is not shown"); assert(MOCK.findLike("FontString", "Not counted on Odd Ring: Use: Summons a cat"), "the Use line is not named")
+    return string.format("%+.2f DPS instead of Plain Ring, %+.2f instead of Odd Ring; change: %s", r.alts[1].diff, r.alts[2].diff, RSX.describeStats(r.alts[1].delta, true))`);
+}
+{
+  // Arcanite Reaper (tooltip only: 153-256 at 3.8, +62 Attack Power) instead of The Unstoppable Force (18 Strength, 28 crit rating)
+  const alt = Object.assign({}, expV, { str: expV.str - 18, crit: expV.crit - 2, spellCrit: expV.spellCrit - 2, apGear: expV.apGear + 62, wMin: 153, wMax: 256, wSpeed: 3.8 });
+  const want = pairedJS(expV, alt, 'socSor');
+  step('Shift + right-click a weapon in the bags: its damage, speed and stats replace the worn one', `MOCK.keys.shift = true; MOCK.button = "RightButton"
+    HandleModifiedItemClick(MOCK.link(5002), MOCK.bagLocation()); MOCK.keys.shift = false; assert(RSX.jobRunning(), "no job"); ${PUMP}
+    local r = RSX.lastItemResult; assert(#r.alts == 1 and r.alts[1].slot == 16 and r.alts[1].label == "The Unstoppable Force")
+    local v = r.alts[1].values; assert(v.wMin == 153 and v.wMax == 256 and v.wSpeed == 3.8 and v.hanna == false)
+    assert(math.abs(r.alts[1].diff - ${want}) < 1e-6, "difference " .. r.alts[1].diff .. " instead of ${want}")
+    assert(MOCK.findLike("FontString", "Not counted on The Unstoppable Force: Chance on hit"), "the proc is not named")
+    return string.format("%+.2f DPS; change: %s", r.alts[1].diff, RSX.describeStats(r.alts[1].delta, true))`);
+}
+step('a plain click or another modifier does nothing', `local before = RSX.lastItemResult; MOCK.button = "LeftButton"; MOCK.keys.shift = true; HandleModifiedItemClick(MOCK.link(5003), MOCK.bagLocation())
+  MOCK.button = "RightButton"; MOCK.keys.alt = true; HandleModifiedItemClick(MOCK.link(5003), MOCK.bagLocation()); MOCK.keys.alt = false; MOCK.keys.shift = false; assert(not RSX.jobRunning() and RSX.lastItemResult == before)`);
+step('Shift + right-click on the character sheet: what the worn item is worth', `MOCK.keys.shift = true; MOCK.button = "RightButton"; PaperDollItemSlotButton_OnModifiedClick(MOCK.slot(11)); MOCK.keys.shift = false; assert(RSX.jobRunning(), "no job"); ${PUMP}
+  local r = RSX.lastItemResult; assert(r.worn and #r.alts == 1 and r.alts[1].worth and r.alts[1].diff < 0, "worth"); assert(MOCK.findLike("FontString", "You are wearing this"))
+  return string.format("Plain Ring is worth %.2f DPS", -r.alts[1].diff)`);
+step('the libram is compared too; a shield and bread are refused in words', `SlashCmdList.RETSIM("item " .. MOCK.link(272435)); ${PUMP}; local r = RSX.lastItemResult; assert(r.alts[1].worth and r.alts[1].values.judgeMult == 1, "Libram of Law taken off")
+  local ok, why = RSX.simItem(MOCK.link(5007)); assert(not ok and why:find("two-hand", 1, true), tostring(why)); local ok2, why2 = RSX.simItem(MOCK.link(5008)); assert(not ok2 and why2:find("not something", 1, true)); return why`);
+step('auto rotation: each side finds its own best twist', `SlashCmdList.RETSIM("mode auto"); assert(RSX.simItem(MOCK.link(5002))); local _, total = RSX.jobProgress(); assert(total == (${N} + 180) * 2, "total " .. tostring(total)); ${PUMP}
+  local r = RSX.lastItemResult; return r.base.mode.name .. " / " .. r.alts[1].mode.name`);
+step('an item link from chat: the button under its window', `MOCK.refItem = 5003; ItemRefTooltip:Show(); for i = 1, 30 do MOCK.frame() end
+  assert(RetSimItemPanel:IsShown() and MOCK.findLike("Button", "Sim this item"), "no button under the link window"); MOCK.click("Sim this item"); assert(RSX.jobRunning()); ${PUMP}
+  ItemRefTooltip:Hide(); MOCK.refItem = nil; for i = 1, 30 do MOCK.frame() end; assert(not RetSimItemPanel:IsShown(), "the panel stays after the link window closed")`);
+step('/rsim click off: the click does nothing; on again', `SlashCmdList.RETSIM("click off"); MOCK.keys.shift = true; MOCK.button = "RightButton"; HandleModifiedItemClick(MOCK.link(5003), MOCK.bagLocation()); assert(not RSX.jobRunning())
+  SlashCmdList.RETSIM("click on"); HandleModifiedItemClick(MOCK.link(5003), MOCK.bagLocation()); MOCK.keys.shift = false; assert(RSX.jobRunning()); ${PUMP}`);
+step('a character sim after item sims still lands in the window; the dump holds the last item', `SlashCmdList.RETSIM("sim"); ${PUMP}; assert(RSX.last and RSX.last.fights == ${FIGHTS})
+  local t = RSX.dumpText(); assert(t:find("lastItem", 1, true) and t:find("ITEM_MOD_CRIT_RATING_SHORT", 1, true), "the dump lacks the last item")`);
 console.log(host.limits());
 console.log(failed ? failed + ' step(s) FAILED' : 'all steps passed');
 process.exit(failed ? 1 : 0);

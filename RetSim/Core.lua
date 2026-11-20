@@ -17,13 +17,15 @@ local function initDB()
   local o = db.options
   if RS.MODES[o.mode or ''] == nil and o.mode ~= 'auto' then o.mode = 'auto' end
   o.fights = max(20, min(20000, floor(tonumber(o.fights) or 300)))
+  o.itemFights = max(20, min(2000, floor(tonumber(o.itemFights) or 150)))      -- fights per side when an item is simmed
+  if o.itemClick == nil then o.itemClick = true end                              -- Shift + right-click on an item sims it
   db.settings = type(db.settings) == 'table' and db.settings or {}     -- your own choices on top of the defaults (raid buffs)
   RS.db = db
 end
 function RS.modeName(key) return key == 'auto' and 'Best twist (auto)' or (RS.MODES[key] and RS.MODES[key].name) or key end
 function RS.buffsOn() for i = 1, #RS.BUFFS do local k = RS.BUFFS[i].key; local x = RS.db.settings[k]; if x == nil then x = RS.DEFAULTS[k] end; if x then return true end end return false end
--- every raid buff and debuff on or off; Judgement of the Crusader from another paladin stays off (it changes the rotation)
-function RS.setBuffs(on) for i = 1, #RS.BUFFS do local k = RS.BUFFS[i].key; RS.db.settings[k] = on and k ~= 'jotcExt' end end
+-- on: the website's default raid (its usual buffs and debuffs; the optional ones like Gift of Arthas stay off); off: none at all
+function RS.setBuffs(on) for i = 1, #RS.BUFFS do local k = RS.BUFFS[i].key; if on then RS.db.settings[k] = nil else RS.db.settings[k] = false end end end
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- reading the character
@@ -44,6 +46,7 @@ local job, deadline
 local driver = CreateFrame('Frame')
 driver:Hide()
 local function tick() if job and now() > deadline then coroutine.yield() end end
+RS.tick = tick
 function RS.jobRunning() return job ~= nil end
 function RS.jobProgress() if job then return job.done, job.total, job.label end end
 function RS.cancelJob()
@@ -75,6 +78,19 @@ local function startJob(label, total, fn)
   driver:Show()
   return true
 end
+RS.startJob = startJob
+
+-- The best of the three seal twists for these values: 60 fights each on the same seeds (the website tries 150).
+function RS.pickTwist(c, v, seed, onFight)
+  local best, pick = -1, nil
+  for _, k in ipairs({ 'socSor', 'sorSoc', 'sorFury' }) do
+    local m, sum = RS.resolveMode(k, v.wSpeed), 0
+    for i = 0, 59 do sum = sum + RS.simulateOnce(c, m, seed * 7919 + i * 104729).dps; if onFight then onFight() end; tick() end
+    if sum > best then best, pick = sum, k end
+  end
+  return pick
+end
+function RS.wantsTwistPick(v) return RS.db.options.mode == 'auto' and v.unsealedWrath and v.hasSoC end
 
 -- Sim your character: read it (out of combat), find the best twist when the rotation is "auto", then play the fights.
 function RS.simCharacter()
@@ -89,18 +105,11 @@ function RS.simCharacter()
   end
   local v, fights, modeKey = RS.values, RS.db.options.fights, RS.db.options.mode
   local seed = math.random(1, 999999)
-  local trial = (modeKey == 'auto' and v.unsealedWrath and v.hasSoC) and 3 * 60 or 0
+  local trial = RS.wantsTwistPick(v) and 3 * 60 or 0
   return startJob('Simulating', fights + trial, function(j)
     local c = RS.derive(v)
     local pick
-    if trial > 0 then
-      local best = -1
-      for _, k in ipairs({ 'socSor', 'sorSoc', 'sorFury' }) do
-        local m, sum = RS.resolveMode(k, v.wSpeed), 0
-        for i = 0, 59 do sum = sum + RS.simulateOnce(c, m, seed * 7919 + i * 104729).dps; j.done = j.done + 1; tick() end
-        if sum > best then best, pick = sum, k end
-      end
-    end
+    if trial > 0 then pick = RS.pickTwist(c, v, seed, function() j.done = j.done + 1 end) end
     local mode = RS.resolveMode(modeKey, v.wSpeed, pick)
     local sum, S, dps = 0, {}, {}
     local mana, echoes, blocked = 0, 0, 0
@@ -181,6 +190,7 @@ function RS.dumpText()
     d.simValues, d.simNotes, d.simTotals = keep, RS.valueNotes, RS.totals(v)
   end
   d.options, d.selfTest, d.lastError = RS.db.options, RS.db.selfTest, RS.lastError
+  d.lastItem = RS.db.lastItem                               -- what the game returned for the items of the last item comparison
   if RS.last then d.lastResult = { mean = RS.last.mean, margin = RS.last.margin, fights = RS.last.fights, mode = RS.last.mode and RS.last.mode.key, seconds = RS.last.seconds, rows = RS.last.rows } end
   local out = {}
   ser(d, '', 0, out)
@@ -208,6 +218,8 @@ local HELP = {
   '/rsim mode auto | socSor | sorSoc | sorFury | socOnly | sorOnly | shock - the rotation',
   '/rsim fights 500 - how many fights a sim plays',
   '/rsim buffs on | off - every raid buff and debuff on or off',
+  '/rsim item [shift-click an item] - sim that item against what you wear',
+  '/rsim click on | off - Shift + right-click on an item sims it',
   '/rsim test - the maths check against the website',
   '/rsim dump - what the game returned, as text to copy and send',
 }
@@ -239,6 +251,13 @@ SlashCmdList['RETSIM'] = function(msg)
     if arg == 'on' or arg == 'off' then RS.setBuffs(arg == 'on') end
     RS.print('Raid buffs and debuffs: ' .. (RS.buffsOn() and 'on' or 'off') .. '.')
     if RS.refresh then RS.refresh() end
+  elseif cmd == 'item' then
+    local link = arg:match('(|c%x+|Hitem:.-|h.-|h|r)') or arg:match('(|Hitem:.-|h.-|h)')
+    if not link then RS.print('Type /rsim item, a space, then Shift-click an item to put its link there.')
+    elseif RS.showItem then RS.showItem(link) end
+  elseif cmd == 'click' then
+    if arg == 'on' or arg == 'off' then RS.db.options.itemClick = arg == 'on' end
+    RS.print('Shift + right-click on an item ' .. (RS.db.options.itemClick and 'sims it.' or 'does nothing here.'))
   elseif cmd == 'test' then
     local ok, lines = RS.selfTest()
     for i = 1, #lines do RS.print(lines[i]) end
