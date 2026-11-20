@@ -4,17 +4,17 @@
 // counted while the code runs and reported by limits(): 60 upvalues per function and (enforced by both) 200 locals.
 const fs = require('fs'), path = require('path');
 const { lua, lauxlib, lualib, to_luastring, to_jsstring } = require('fengari');
-const ADDON_DIR = path.join(__dirname, '..', 'WarlockSim');
+const ADDON_DIR = path.join(__dirname, '..', 'RetSim');
 
 const PRELUDE = `
 unpack = unpack or table.unpack
-WLX = {}
+RSX = {}
 HOST = { maxUp = 0, maxUpWhere = '' }
 debug.sethook(function()
   local i = debug.getinfo(2, 'uS')
   if i and i.what == 'Lua' and i.nups > HOST.maxUp then HOST.maxUp = i.nups; HOST.maxUpWhere = i.short_src .. ':' .. i.linedefined end
 end, 'c')
-function HOST.load(src, name) local f = assert(load(src, name)); return f('WarlockSim', WLX) end
+function HOST.load(src, name) local f = assert(load(src, name)); return f('RetSim', RSX) end
 `;
 
 function newLua() {

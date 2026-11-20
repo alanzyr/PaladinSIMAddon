@@ -1,171 +1,111 @@
-# Xn's Warlock Sim
+# Forever Ret Sim
 
-A Warlock DPS simulator **inside the game**, for World of Warcraft: Forever. It reads your character — talents, race,
-demon and the spell numbers on your character sheet — plays a few hundred fights in the background and shows your DPS,
-what each spell contributes and what each stat is worth to you.
+A **Retribution Paladin** DPS simulator **inside the game**, for World of Warcraft: Forever. It reads your character -
+talents, race, weapon and the numbers on your character sheet - plays a few hundred fights in the background and shows
+your DPS and what each ability contributes.
 
-**Download it on [CurseForge](https://www.curseforge.com/wow/addons/xns-warlock-sim)** (or from the
-[Releases page](https://github.com/XNWLK/WarlockSIMAddon/releases) here).
+It is the in-game version of the website [Forever Ret-sim](https://alanzyr.github.io/Forever-Ret-Sim/) and plays the same
+fights, to the last digit.
 
-> Built for the WoW: Forever client (interface 16001). What changed in each version:
-> [changelog](CHANGELOG.md).
+## A fork of Xn's Warlock Sim
 
-## At a glance
+This addon is a fork of [Xn's Warlock Sim](https://github.com/XNWLK/WarlockSIMAddon) by **Xn**, made for paladins with
+Xn's permission. Credit for the foundation goes to Xn:
 
-- **Sim your character:** your DPS with its margin, a bar per spell (casts, crits, misses), Life Taps, lowest mana and threat.
-- **Stat weights:** what hit, crit, haste, Intellect and Spell Pierce are worth in spell power for your build.
-- **What if:** +10 spell power, +1% hit, +1% crit, +1% haste or +20 Intellect in one click, or any change you type in.
-- **Rank the builds:** every ready build of the sim played with your gear, in order; your own character is in the list in gold.
-- **Sim an item:** Shift + right-click an item in your bags, on your character sheet, at a vendor or in a loot window — how
-  much DPS it would gain or lose you against what you wear. A worn item is simmed against an empty slot.
-- **Numbers on your character sheet:** over every item, the DPS it is worth to you; above the weapons, the DPS your
-  character sims at.
-- **Trinkets and weapon enchants:** known trinkets (Talisman of Ephemeral Power, Zandalarian Hero Charm, The Black Book and
-  more), main-hand enchants like Revelation and the Blade of Eternal Darkness's proc count in the fight.
-- **The helper** (off by default): on a raid boss, a small bar shows the spell the sim would cast next, the two after it,
-  cooldowns to use with it and the seconds the boss has left — and the rotation follows that time.
-- **Codes:** settings and build codes from the website go in and out; *My gear* sends everything you wear to the
-  website's gear builder.
-- **Your settings:** the website's presets (Default, Self-buffed, Full buffs) or your own raid buffs, debuffs on the boss and
-  consumables; fight length, 1 to 3 targets, precast, movement, latency and more, as on the website.
+- the layout of the addon and the way its parts fit together,
+- the careful way of reading a character from the Forever client,
+- the job that plays fights a little every frame so the game never freezes,
+- the random number generator in Lua, and
+- the test tools that run the addon's code outside the game.
 
-## One of three
+What is new here is the paladin side: the fight rules of the Ret sim carried over to Lua, the reading of a paladin's
+character sheet and weapon, and the window.
 
-| | |
-|---|---|
-| **Xn's Warlock Sim** (this addon) | The simulator in the game, with your own character. |
-| [Xn's Forever Warlock Sim](https://xnwlk.github.io/WarlockSIM/) ([source](https://github.com/XNWLK/WarlockSIM)) | The simulator as a website: every setting, the build editor, charts, comparisons, the fight log, and how each number is calculated. |
-| [Forever Warlocking](https://xnwlk.github.io/ForeverWarlocking/) ([source](https://github.com/XNWLK/ForeverWarlocking)) | A 3D practice room in the browser: you press the buttons yourself against training dummies and are measured against the simulator. |
+If you play a Warlock, you want Xn's addon: [CurseForge](https://www.curseforge.com/wow/addons/xns-warlock-sim) or the
+[original repository](https://github.com/XNWLK/WarlockSIMAddon). This repository only holds the paladin addon, in the
+folder `RetSim`.
 
-All three use the same data and the same rules. Every fight the addon plays gives the same damage, to the last digit,
-as the website's engine with the same settings. The rules themselves are described in the website's
-[rule book](https://github.com/XNWLK/WarlockSIM/blob/main/MECHANICS.md).
-
-A way to use them together: sim your character here, take the build to the website with a code to look closer, then
-practise its priority list in Forever Warlocking — it reads the same build and settings codes.
+> **Status: version 0.1, a first test version.** It reads your character, plays the fights and shows your DPS with a line
+> per damage source. Built for the WoW: Forever client (interface 16001).
 
 ## Install
 
-1. Install it from [CurseForge](https://www.curseforge.com/wow/addons/xns-warlock-sim) (with the CurseForge app, or
-   download the file there), or download `WarlockSim-x.y.z.zip` from the newest entry on the
-   [Releases page](https://github.com/XNWLK/WarlockSIMAddon/releases).
-2. Unzip it into `World of Warcraft\_forever_\Interface\AddOns`, so that there is a folder `AddOns\WarlockSim`.
-   (To update, unzip over the old folder. The CurseForge app does this step for you.)
-3. Restart the game and tick **Xn's Warlock Sim** in the AddOns list.
-4. Type `/wsim` or click the minimap button to open the window; Escape closes it. Key bindings for opening it and for simming your
-   character are in the game's Key Bindings, under AddOns.
+1. Download this repository as a zip: <https://github.com/alanzyr/PaladinSIMAddon/archive/refs/heads/main.zip>
+2. Copy the folder `RetSim` from it into `World of Warcraft\_forever_\Interface\AddOns`, so that there is a folder
+   `AddOns\RetSim`.
+3. Restart the game and tick **Forever Ret Sim** in the AddOns list.
+4. Type `/rsim` to open the window; Escape closes it.
+
+The addon only loads on a Paladin. On another class it says so in chat and does nothing else.
+
+## The first test
+
+What the game returns for a paladin has not been seen yet, so the first thing to do is this, out of combat and
+**without raid buffs if you can**:
+
+1. `/rsim test` - the maths check. It should say that the addon plays the same fights as the website.
+2. `/rsim` opens the window; press **Sim**.
+3. `/rsim dump` opens a window with text. Click in it, Ctrl+A, Ctrl+C, and send the text.
+
+The dump holds what the game returned (stats, talents, weapon, buffs) and what the sim made of it. It contains your
+character's level and race, not its name.
 
 ## What it does
 
-The window has a menu down its left side, one page for each job; each page keeps its own result. Drag the title to move
-the window, and its bottom right corner to make it bigger or smaller. It opens on the page you used last.
+- **Sim your character:** your DPS with its margin, the lowest and highest fight, and a line per damage source with its
+  share.
+- **Rotations:** the best seal twist for your weapon is picked automatically, or choose one yourself: 3x Seal of Command
+  into Seal of Righteousness, 2x Righteousness into Command, 3x Righteousness into Fury, one seal only, or Shockadin.
+- **Raid buffs and debuffs** on or off in one click.
+- **Your weapon and its enchant:** damage and speed from the tooltip; Crusader and the Forever "Grand" enchants count as
+  an average uptime; Blade of Hanna's proc and Libram of Law are played in the fight.
 
-| Page | |
-|---|---|
-| **My DPS** | *Sim* reads your character (out of combat) and plays the fights: your talents, race, demon, sacrificed demon and your spell power, hit, crit, haste, Intellect, Spirit, Stamina, mana per 5 s and Spell Pierce from the game. Opening the window reads it too. The order of your spells (*Rotation*, the priority list) is taken from the ready build closest to your talents, or from one you pick. Your numbers are in a table (the character sheet, and what the sim counts as your gear), and what each stat is worth in spell power is a table under the result; hover the line under your name for what the addon noticed. |
-| **What if** | Your character with +10 spell power, +1% hit, +1% crit, +1% haste or +20 Intellect in one click, or any change you type in under *Your own change* (a minus for less): the change in DPS, the spells it comes from and what one point is worth. Both sides play the same fights. |
-| **Items** | The last 10 items you simmed, newest first, with their answer; click one to sim it again. Also: the numbers on your character sheet on or off, the click that sims an item and how many fights it plays. |
-| **Builds** | *Rank builds* plays every build of the website with **your** gear numbers and puts them in order — which build is best for your gear. Your own character, with the talents you have now, is in the list in gold. Click a build for its spells; *Use this rotation* makes its priority list yours. |
-| **Raid setup** | The website's three presets — *Default*, *Self-buffed*, *Full buffs* — or your own raid buffs, debuffs on the boss and consumables (each list opens with a click). The fight: length, 1–3 targets, when cooldowns and trinkets are used, boss type and zone; under *More fight settings* precast, movement, hits taken and latency. |
-| **Codes** | Paste a settings code or a build code from the website, or make one to open there (*My settings*, *My build*). *My gear* makes a gear code of everything you wear (items and enchants) for the website's gear builder. Loaded builds are listed, each with a *Remove* button. |
-| **Options** | Number of fights, stopping early once the result is exact enough, stat weights on or off, how much of each frame the sim may take, the helper bar (on, and where it sits), the minimap button. |
+Not there yet: consumables as settings, trinkets, set bonuses that are procs, stat weights, simming a single item, and
+codes to and from the website.
 
-**The helper** (off by default; Options, or `/wsim helper`): on a raid boss a small bar shows the
-spell the sim would cast next with your character, the two after it, cooldowns to use with it and the seconds the boss
-has left. The time comes from how fast the boss loses health, and the sim's priority list plays with it (DoTs that no
-longer pay off, Death Coil at the end, Life Tap by the time left, the execute phase at the boss's real health). It reads
-the boss's health, your mana, your buffs and the boss's debuffs from the game; should the game hide one of them from
-addons, it follows your own casts instead. *Move the bar* (Options) or `/wsim helper move` places it.
-
-The result shows DPS with its margin, a bar per spell (hover for casts, crits and misses), the stat weights in spell
-power, Life Taps, lowest mana and threat.
-
-### Numbers on your character sheet
-
-Open your character sheet: over every item you wear there is a small number, the **DPS that item is worth to you** —
-your character as it is against the same character with that slot empty — and above the weapon slots the **DPS your
-character sims at**. One glance shows which pieces carry you and which slot is weak.
-
-The numbers are worked out in the background when you open the sheet, one item after the other (a few seconds each
-round), and again when your items, talents or the sim's settings change. A sim you start yourself always goes first.
-Green is a real contribution; grey means the item gives nothing the sim counts, or less than the run can tell apart.
-The Items page switches them off.
-
-### Sim an item
-
-**Shift + right-click an item** — in your bags, on your character sheet, at a vendor, in a loot or quest window. A small panel
-opens at the mouse and plays your character as it is, and again with that one item in place of the one you wear in its
-slot, and tells you the difference in DPS — for a ring or a trinket against each of the two you wear. The same fights
-are played on both sides, so even small differences show. It also lists what changed ("+14 spell power, -1% hit") so
-you can see what was counted.
-
-- **An item you are wearing** is simmed against an empty slot: the panel says what the item is worth to you.
-- **An item link in chat:** click it, and under the window that opens there is a **Sim this item** button.
-- **An item that drops for a roll:** beside the Need / Greed popup there is a small **Sim** button (the popup's item
-  icon only takes left clicks, so the right-click does not work there).
-
-Enchants and set bonuses are left out on both sides. A trinket the sim knows brings its "Use:" effect with it; other "Use:"
-and "Chance on hit:" effects are not simulated (the
-panel names them).
-
-The click can be changed on the Items page ("Sim an item with": Alt + right-click, Alt + left-click and others, or off) if
-Shift + right-click is taken by another addon or gets in your way.
+## Commands
 
 | Command | |
 |---|---|
-| `/wsim` | Opens or closes the window (`/warlocksim` works too). |
-| `/wsim read` | Reads your character. |
-| `/wsim minimap` | Shows or hides the minimap button. |
-| `/wsim helper` | The helper bar on or off; `/wsim helper move` lets you drag it where you want it. |
-| `/wsim test` | Plays 10 fights and compares them with the website's engine: the maths check. |
-| `/wsim dump` | Saves what the game returned when your character was read (for bug reports). |
-| `/wsim stop` | Stops a running sim. |
-| `/wsim blocked` | Lists actions of this addon the game blocked, if any (for bug reports). |
+| `/rsim` | Opens or closes the window (`/retsim` works too). |
+| `/rsim sim` | Reads your character and sims it. |
+| `/rsim mode auto` | The rotation: `auto`, `socSor`, `sorSoc`, `sorFury`, `socOnly`, `sorOnly`, `shock`. |
+| `/rsim fights 500` | How many fights a sim plays (300 to begin with). |
+| `/rsim buffs on` / `off` | Every raid buff and debuff on or off. |
+| `/rsim test` | The maths check against the website. |
+| `/rsim dump` | What the game returned, as text to copy. |
 
-## Good to know
+## How your character is read
 
-- **Warlocks only.** On any other class the addon does not load; a line in chat at login says so.
-- **Not in combat.** The Forever client hides your numbers from addons while you fight, so your character can only be
-  read out of combat. Sims can run at any time.
-- **Kept over a reload.** The character you read last and the numbers on your character sheet are kept per character,
-  over a `/reload` and the next login. *Sim* reads your character again (out of combat), so a change of items or talents is
-  always in it.
-- **Your numbers are read as they are.** Raid buffs the addon recognises on you are taken off again, so that Raid
-  setup alone decides which buffs the sim uses. Anything else that is on you while reading — a flask, food, a weapon stone
-  or oil — stays inside your numbers and counts as gear. My DPS lists what it found (hover the line under your name).
-- **Level 60.** The sim plays level-60 spells against a level-63 boss. Below level 60 the DPS shown is what a level 60
-  Warlock with your numbers would do, not what you do now; item and stat comparisons still give a rough idea (hit counts
-  for more there than against enemies of your own level).
-- **Speed.** The game gives addons one processor core, shared with the game itself, and no background threads — an addon
-  cannot use more cores. Fights are played a few milliseconds per frame. "While simming" (Options) decides how
-  many: "Automatic" (quick while you are out of combat, gentle while you fight), "Stay smooth", "Sim faster" or
-  "Fastest". The DPS is shown as soon as it is known, the stat weights follow; and a sim asked for again with nothing
-  changed is answered at once. "Stop early" (on by default) ends a sim once its result is exact enough; comparisons,
-  which play the same fights on both sides, often need only a few dozen. Fewer fights are quicker and less exact (the
-  "+-" behind the DPS says how exact).
-- **On the website, not in the addon:** the build editor, charts, comparing runs, the fight timeline and log, share
-  links (settings codes and build codes do work here).
+The character sheet shows totals: gear, enchants, talents and whatever buffs are on you in one number. The sim adds
+talents and raid buffs itself, so the addon takes them off again and keeps "base + gear" (`RetSim/Character.lua`).
+Buffs it knows (Kings, Might, Wisdom, Mark of the Wild, Arcane Intellect, Battle Shout, the totems, Leader of the Pack,
+Moonkin Aura) are taken off; any other buff on you counts as part of your gear and is named in the window.
+
+Nothing is read in combat: the Forever client hides your numbers from addons then. A sim started in combat uses the
+character as it was read last.
+
+Which talents and racials the sheet's numbers already hold is set in one place, `RS.SHEET` in `Character.lua`. These are
+assumptions until the first dump confirms them.
 
 ## For maintainers
 
-The addon holds a copy of the simulator's data (`WarlockSim/Data.lua`, generated) and a line-by-line port of its engine
-(`Engine.lua`, `Sim.lua`). With the simulator's folder next to this one:
+The addon holds a copy of the website's data (`RetSim/Data.lua`, generated) and a function-by-function port of its
+engine (`RetSim/Engine.lua`, `RetSim/Sim.lua`). With the website's repository
+([Forever-Ret-Sim](https://github.com/alanzyr/Forever-Ret-Sim)) in a folder called `repo` next to this one, or
+`RETSIM_HTML` pointing at its `ret-sim.html`:
 
 ```
 cd tools
-npm install                 # once: the Lua runner the checks use
-node gen-data.js            # data from the simulator -> WarlockSim/Data.lua
-node gen-expected.js        # exact results for the in-game self-test -> WarlockSim/Expected.lua
-node check-all.js           # every check; "full" for the long engine comparison
+npm install                  # once: the Lua runner the checks use
+node gen-ret-data.js         # the website's data -> RetSim/Data.lua and RetSim/Expected.lua
+node check-ret-engine.js     # the same fights in both engines ("full" for more); takes a few minutes
+node check-ret-addon.js      # the whole addon against a stand-in for the game
 ```
 
-`node arena-server.js` opens a practice page at http://localhost:8642: the addon's real code against a practice boss, to
-try the helper bar in a browser (build, race, raid damage, what the game hides, auto-play). `check-helper.js` plays
-a fight per build with it.
-
-`check-engine.js` plays the same fights in both engines and compares damage, casts, crits, mana, health and threat per
-spell. A changed fight rule in the simulator has to be carried into `Sim.lua` / `Engine.lua` by hand; the check fails
-until it is.
+A changed fight rule on the website has to be carried into `Sim.lua` / `Engine.lua` by hand; `check-ret-engine.js` fails
+until it is. `lua-host.js`, `lua-ser.js` and `wow-mock.lua`
+in `tools` are Xn's: the Lua runner and the stand-in for the game that the checks use.
 
 ## Notice
 

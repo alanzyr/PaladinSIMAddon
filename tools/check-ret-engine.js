@@ -18,7 +18,7 @@ for (const f of ['Engine.lua', 'Sim.lua']) {
 // one fight in Lua, written out as "key=value" lines with every digit (%.17g)
 lua.run(`
 function CHECK(v, ranks, modeKey, seed)
-  local RS = WLX
+  local RS = RSX
   RS.applyTalents(v, ranks)
   local c = RS.derive(v)
   local r = RS.simulateOnce(c, RS.resolveMode(modeKey, v.wSpeed), seed)
