@@ -5,6 +5,7 @@
 -- No game API in this file.
 -- The fight's state lives in one table (st) instead of local variables: the game's Lua allows 60 upvalues a function.
 local ADDON, RS = ...
+if RS.notPaladin then return end   -- not a Paladin: nothing of the addon loads (Class.lua)
 
 local min, max, huge, sort, remove = math.min, math.max, math.huge, table.sort, table.remove
 

@@ -4,6 +4,7 @@
 -- No game API in this file (it also runs outside the game in the check).
 -- The random number generator and the layout of this addon come from Xn's Warlock Sim, with Xn's permission.
 local ADDON, RS = ...
+if RS.notPaladin then return end   -- not a Paladin: nothing of the addon loads (Class.lua)
 
 local floor, min, max = math.floor, math.min, math.max
 local bxor, bor = bit.bxor, bit.bor
