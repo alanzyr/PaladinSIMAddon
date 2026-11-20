@@ -81,6 +81,41 @@ function RS.applyTalents(v, ranks)
 end
 
 -- ---------------------------------------------------------------------------------------------------------------------
+-- consumables: the website's applyConsumables(), line by line
+-- ---------------------------------------------------------------------------------------------------------------------
+function RS.applyConsumables(v)
+  if v.flask == 'supreme' then v.sp = v.sp + 150
+  elseif v.flask == 'wisdom' then v.mana = v.mana + 2000
+  elseif v.flask == 'aggression' then v.crit = v.crit + 2; v.spellCrit = v.spellCrit + 2
+  elseif v.flask == 'accuracy' then v.hit = v.hit + 2; v.spellHit = v.spellHit + 2
+  elseif v.flask == 'precision' then v.exp = v.exp + 2
+  elseif v.flask == 'swiftness' then v.haste = (v.haste or 0) + 2 end
+  local agi, int, crit = 0, 0, false
+  if v.elixStr == 'grizzly' then v.str = v.str + 25; crit = true elseif v.elixStr == 'strength' then v.str = v.str + 25 end
+  if v.elixAgi == 'mongoose' then agi = agi + 25; crit = true elseif v.elixAgi == 'agility' then agi = agi + 25 end
+  if v.elixInt == 'owl' then int = int + 25; crit = true end
+  if v.elixSpi == 'sages' then crit = true end
+  if v.blasted == 'roids' then v.str = v.str + 25 elseif v.blasted == 'scorpok' then agi = agi + 25 end
+  if crit then v.crit = v.crit + 2; v.spellCrit = v.spellCrit + 2 end   -- the +2% crit is one shared effect: several of these elixirs do not add up
+  v.crit = v.crit + agi / v.agiPerCrit; v.int = v.int + int; v.mana = v.mana + int * v.manaPerInt
+  if v.elixAp == 'juju' then v.apGear = v.apGear + 40 elseif v.elixAp == 'firewater' then v.apGear = v.apGear + 35 end
+  if v.elixSp == 'arcane' then v.sp = v.sp + 35 end
+  if v.elixHoly == 'holy' then v.sp = v.sp + 40; v.holyOnly = (v.holyOnly or 0) + 40 end   -- every spell in the sim is Holy
+  if v.elixMp5 == 'mageblood' then v.mp5 = v.mp5 + 20 end
+  if v.oil == 'wizard' then v.sp = v.sp + 36; v.spellCrit = v.spellCrit + 1
+  elseif v.oil == 'elemental' then v.crit = v.crit + 2
+  elseif v.oil == 'dense' then v.wMin = v.wMin + 8; v.wMax = v.wMax + 8 end
+  if v.food == 'dumplings' then v.str = v.str + 20 elseif v.food == 'fishap' then v.apGear = v.apGear + 40 elseif v.food == 'fishsp' then v.sp = v.sp + 28 end
+  if v.combatPot ~= nil and v.combatPot ~= 'none' then
+    -- 30 s buff on the shared 2 min potion cooldown, used from the pull: applied as its average over the fight
+    local up = min(1, (1 + floor(max(0, v.fight - 30) / 120)) * 30 / max(1, v.fight))
+    if v.combatPot == 'frenzy' then v.apGear = v.apGear + 80 * up else v.sp = v.sp + 47 * up end
+    v.potions = false
+  end
+  return v
+end
+
+-- ---------------------------------------------------------------------------------------------------------------------
 -- derive(): settings + talents + gear -> the values one fight is played with
 -- ---------------------------------------------------------------------------------------------------------------------
 function RS.derive(v)

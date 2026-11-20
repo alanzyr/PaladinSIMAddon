@@ -86,6 +86,9 @@ function RS.valuesFromSheet(ch, settings)
     if v[k] < -0.05 then notes[#notes + 1] = 'Your ' .. label .. ' came out below zero (' .. string.format('%.1f', v[k]) .. ') after talents and buffs were taken off; it counts as 0.' end
     if v[k] < 0 then v[k] = 0 end
   end
+  -- your settings on top, as the website does after gear: consumables, and another paladin's Judgement of the Crusader
+  RS.applyConsumables(v)
+  if v.jotcExt then v.opener = false end
   if ch.otherAuras and #ch.otherAuras > 0 then
     notes[#notes + 1] = 'Other buffs on you count as part of your gear: ' .. table.concat(ch.otherAuras, ', ') .. '.'
   end

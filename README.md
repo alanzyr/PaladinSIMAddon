@@ -25,7 +25,7 @@ If you play a Warlock, you want Xn's addon: [CurseForge](https://www.curseforge.
 [original repository](https://github.com/XNWLK/WarlockSIMAddon). This repository only holds the paladin addon, in the
 folder `RetSim`.
 
-> **Status: version 0.4, a test version.** It reads your character, plays the fights, shows your DPS with a line per
+> **Status: version 0.5, a test version.** It reads your character, plays the fights, shows your DPS with a line per
 > damage source, and sims a single item against what you wear. Built for the WoW: Forever client (interface 16001).
 
 ## Install
@@ -65,12 +65,22 @@ character's level and race, not its name.
 - **Export to the website:** `/rsim export` or the **Export** button makes a code of everything you wear with its
   enchants, your talents, race and rotation. Paste it on the [website](https://alanzyr.github.io/Forever-Ret-Sim/) under
   **Import > Addon** and your character is set up there.
+- **Settings from the website:** set up raid buffs, debuffs, consumables, the encounter and the rotation on the
+  [website](https://alanzyr.github.io/Forever-Ret-Sim/), choose **Export > Addon settings** there and paste the code in the
+  addon with **Import**. The fights are then played with those settings, consumables included. **Settings code** makes the
+  same kind of code from the addon, for the website's **Import > Addon**.
 - **Raid buffs and debuffs** on or off in one click.
 - **Your weapon and its enchant:** damage and speed from the tooltip; Crusader and the Forever "Grand" enchants count as
   an average uptime; Blade of Hanna's proc and Libram of Law are played in the fight.
 
-Not there yet: consumables as settings, trinkets and other procs, set bonuses, stat weights, and codes from the website
-into the addon.
+Not there yet: trinkets and other procs, set bonuses, stat weights, and a window to change single settings inside the
+game (for now they come from the website with a settings code).
+
+### Consumables
+
+Consumables are settings, not something read from your character: the ones in your settings are added on top of what
+the character sheet shows. So read your character **without** flask, elixirs and food on you - a consumable that is
+both on you and in your settings is counted twice. The window names the consumables it is counting.
 
 ### Sim an item
 
@@ -98,6 +108,9 @@ The panel that opens tells you the difference in DPS and what was counted ("+18 
 | `/rsim click on` / `off` | Shift + right-click on an item sims it, or not. |
 | `/rsim export` | A code of your gear, enchants, talents, race and rotation for the website (Import > Addon). |
 | `/rsim minimap` | Shows or hides the minimap button. |
+| `/rsim settings` | A code of your raid buffs, debuffs, consumables, encounter and rotation, for the website. |
+| `/rsim import` | Opens a window to paste a settings code from the website (Export > Addon settings). |
+| `/rsim reset` | Every setting back to the website's defaults. |
 | `/rsim test` | The maths check against the website. |
 | `/rsim dump` | What the game returned, as text to copy. |
 
@@ -127,6 +140,7 @@ npm install                  # once: the Lua runner the checks use
 node gen-ret-data.js         # the website's data -> RetSim/Data.lua and RetSim/Expected.lua
 node check-ret-items.js      # every item of the website through the addon's item reader
 node check-ret-export.js     # the export code, made by the addon and read back the way the website does
+node check-ret-settings.js   # consumables against the website's, and settings codes both ways
 node check-ret-engine.js     # the same fights in both engines ("full" for more); takes a few minutes
 node check-ret-addon.js      # the whole addon against a stand-in for the game
 ```

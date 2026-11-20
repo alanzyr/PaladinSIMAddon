@@ -161,6 +161,61 @@ function RS.exportCode()
   return RS.encodeExport({ race = ch.raceKey, talents = ch.talents, mode = RS.db.options.mode, items = items }), n, e
 end
 
+-- Your settings as they are now (defaults with your own choices on top), for the settings code.
+function RS.settingsNow()
+  local out = {}
+  for i = 1, #RS.SETTINGS do
+    local key = RS.SETTINGS[i].key
+    local x = RS.db.settings[key]
+    if x == nil then x = RS.DEFAULTS[key] end
+    out[key] = x
+  end
+  out.mode = RS.db.options.mode
+  return out
+end
+function RS.settingsCode() return RS.encodeSettings(RS.settingsNow()) end
+-- Reads a pasted settings code into your settings. Returns true and a sentence, or false and why not.
+-- Only the settings the addon knows are taken, each checked against the kind of value it holds.
+function RS.importCode(text)
+  local kind, data = RS.decodeCode(text)
+  if not kind then return false, data end
+  if kind == 'gear' then return false, 'That is a gear code for the website. The addon reads your gear from the game itself; paste a settings code here (website: Export > Addon settings).' end
+  local known, taken, skipped = {}, 0, {}
+  for i = 1, #RS.SETTINGS do known[RS.SETTINGS[i].key] = RS.SETTINGS[i] end
+  local new = {}
+  for key, x in pairs(data.settings) do
+    local s = known[key]
+    if key == 'mode' then
+      if x == 'auto' or RS.MODES[x] then RS.db.options.mode = x; taken = taken + 1 else skipped[#skipped + 1] = 'rotation ' .. tostring(x) end
+    elseif not s then skipped[#skipped + 1] = tostring(key)
+    else
+      local d = RS.DEFAULTS[key]
+      local ok = type(x) == type(d) and (not s.choices or s.choices[x] ~= nil) and (type(x) ~= 'number' or (x == x and x > -1e9 and x < 1e9))
+      if ok then new[key] = x; taken = taken + 1 else skipped[#skipped + 1] = s.label end
+    end
+  end
+  if taken == 0 then return false, 'Nothing in that code could be used.' end
+  for key, x in pairs(new) do RS.db.settings[key] = x end
+  if RS.char then RS.values, RS.valueNotes = RS.valuesFromSheet(RS.char, RS.db.settings) end
+  local msg = taken .. ' settings taken from the code.'
+  if #skipped > 0 then table.sort(skipped); msg = msg .. ' Not known to this version of the addon, left as they were: ' .. table.concat(skipped, ', ') .. '.' end
+  return true, msg
+end
+-- The consumables chosen in your settings, by name ("Flask of Supreme Power, Juju Might").
+function RS.consumablesNow()
+  local names = {}
+  for i = 1, #RS.SETTINGS do
+    local s = RS.SETTINGS[i]
+    if s.group == 'cons' then
+      local x = RS.db.settings[s.key]
+      if x == nil then x = RS.DEFAULTS[s.key] end
+      if s.choices then if x ~= 'none' and s.choices[x] then names[#names + 1] = s.choices[x] end
+      elseif x == true and s.key ~= 'potions' and s.key ~= 'runes' then names[#names + 1] = s.label end
+    end
+  end
+  return names
+end
+
 -- The maths check: the fights of Expected.lua played here must give the website's numbers.
 function RS.selfTest()
   local okAll, lines = true, {}
@@ -243,6 +298,9 @@ local HELP = {
   '/rsim item [shift-click an item] - sim that item against what you wear',
   '/rsim click on | off - Shift + right-click on an item sims it',
   '/rsim export - a code of your gear, enchants, talents and rotation for the website (Import > Addon)',
+  '/rsim settings - a code of your raid buffs, consumables, encounter and rotation for the website',
+  '/rsim import - paste a settings code from the website (Export > Addon settings)',
+  '/rsim reset - every setting back to the website\'s defaults',
   '/rsim minimap - show or hide the minimap button',
   '/rsim test - the maths check against the website',
   '/rsim dump - what the game returned, as text to copy and send',
@@ -293,6 +351,18 @@ SlashCmdList['RETSIM'] = function(msg)
     RS.db.options.minimapButton = RS.db.options.minimapButton == false
     if RS.updateMinimapButton then RS.updateMinimapButton() end
     RS.print('The minimap button is ' .. (RS.db.options.minimapButton and 'shown.' or 'hidden. Type /rsim minimap to bring it back.'))
+  elseif cmd == 'settings' then
+    if RS.showDump then RS.showDump(RS.settingsCode(), 'Your settings code. Click in the text, press Ctrl+A, then Ctrl+C, and paste it on the website under Import > Addon.') end
+  elseif cmd == 'import' then
+    if arg ~= '' then
+      local ok, msg = RS.importCode(arg)
+      RS.print(msg); if RS.refresh then RS.refresh(not ok and msg or nil) end
+    elseif RS.showImport then RS.showImport() end
+  elseif cmd == 'reset' then
+    RS.db.settings = {}; RS.db.options.mode = 'auto'
+    if RS.char then RS.values, RS.valueNotes = RS.valuesFromSheet(RS.char, RS.db.settings) end
+    RS.print('Every setting is back to the website\'s defaults: the usual raid buffs, no consumables, rotation on auto.')
+    if RS.refresh then RS.refresh() end
   elseif cmd == 'test' then
     local ok, lines = RS.selfTest()
     for i = 1, #lines do RS.print(lines[i]) end

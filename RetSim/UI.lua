@@ -91,6 +91,10 @@ local function build()
   ui.buffs:SetPoint('LEFT', ui.mode, 'RIGHT', 6, 0)
   ui.export = button(frame, 'Export', 64, function() SlashCmdList['RETSIM']('export') end)
   ui.export:SetPoint('BOTTOMLEFT', ui.sim, 'TOPLEFT', 0, 6)
+  ui.settings = button(frame, 'Settings code', 104, function() SlashCmdList['RETSIM']('settings') end)
+  ui.settings:SetPoint('LEFT', ui.export, 'RIGHT', 6, 0)
+  ui.import = button(frame, 'Import', 64, function() RS.showImport() end)
+  ui.import:SetPoint('LEFT', ui.settings, 'RIGHT', 6, 0)
   ui.dump = button(frame, 'Dump', 56, function() RS.showDump(RS.dumpText()) end)
   ui.dump:SetPoint('LEFT', ui.buffs, 'RIGHT', 6, 0)
 
@@ -131,6 +135,8 @@ function RS.refresh(message)
     local t = r.totals
     if t then notes[#notes + 1] = string.format('Simmed with %s Strength, %s Attack Power, %s%% crit, %s%% hit, %s Holy spell power.', fmt(t.str), fmt(t.ap), fmt(t.crit, 1), fmt(t.hit, 1), fmt(t.spHoly)) end
   end
+  local cons = RS.consumablesNow()
+  if #cons > 0 then notes[#notes + 1] = 'Consumables from your settings: ' .. table.concat(cons, ', ') .. '.' end
   if RS.char then for i = 1, #RS.char.notes do notes[#notes + 1] = RS.char.notes[i] end end
   if RS.valueNotes then for i = 1, #RS.valueNotes do notes[#notes + 1] = RS.valueNotes[i] end end
   ui.notes:SetText(table.concat(notes, '\n'))
@@ -148,7 +154,7 @@ function RS.toggleWindow()
 end
 
 -- A window with the dump as text: Ctrl+A, Ctrl+C copies it.
-function RS.showDump(body, heading)
+function RS.showDump(body, heading, onImport)
   if not dumpFrame then
     dumpFrame = CreateFrame('Frame', 'RetSimDumpFrame', UIParent)
     dumpFrame:SetSize(520, 420)
@@ -173,12 +179,25 @@ function RS.showDump(body, heading)
     box:SetScript('OnEscapePressed', function(self) self:ClearFocus(); dumpFrame:Hide() end)
     scroll:SetScrollChild(box)
     dumpFrame.box = box
+    dumpFrame.go = button(dumpFrame, 'Import', 80, function() if dumpFrame.onImport then dumpFrame.onImport(dumpFrame.box:GetText()) end end)
+    dumpFrame.go:SetPoint('TOPRIGHT', dumpFrame, 'TOPRIGHT', -30, -6)
   end
+  dumpFrame.onImport = onImport
+  dumpFrame.go:SetShown(onImport ~= nil)
   dumpFrame.head:SetText(heading or 'Click in the text, press Ctrl+A, then Ctrl+C to copy it.')
   dumpFrame.box:SetText(body or '')
   dumpFrame:Show()
   dumpFrame.box:SetFocus()
-  dumpFrame.box:HighlightText()
+  if not onImport then dumpFrame.box:HighlightText() end
+end
+
+-- The window to paste a settings code into: Ctrl+V, then Import.
+function RS.showImport()
+  RS.showDump('', 'Paste a settings code from the website here (Ctrl+V), then press Import.', function(text)
+    local ok, msg = RS.importCode(text)
+    RS.print(msg)
+    if ok then dumpFrame:Hide(); RS.showWindow() else dumpFrame.head:SetText('|cffff6060' .. msg .. '|r') end
+  end)
 end
 
 RS.onLoaded = function()

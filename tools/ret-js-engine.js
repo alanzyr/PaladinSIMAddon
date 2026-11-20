@@ -14,6 +14,10 @@ if (ta < 0) throw new Error('applyTalents not found');
 const applyTalents = new Function('ranks', 'v', 'const rk = n => ranks[n] || 0, treePts = () => 0;\n' + page.slice(ta, tb + 2) + '\napplyTalents(v); delete v.talStr; return v;');
 const pa = page.indexOf('const PRESETS = {'), pb = page.indexOf('const TAL_LS', pa);
 const PRESETS = new Function(page.slice(pa, pb) + '\nreturn PRESETS;')();
+// applyConsumables(v): the consumables chosen in the settings added to the values
+const ca = page.indexOf('function applyConsumables(v){'), cb = page.indexOf('\n}\n', ca);
+if (ca < 0) throw new Error('applyConsumables not found');
+const applyConsumables = new Function('v', page.slice(ca, cb + 2) + '\napplyConsumables(v); return v;');
 // the page's default settings: every field's default value
 function defaults() { const v = {}; for (const f of engine.FIELDS) v[f.k] = f.d; return v; }
-module.exports = Object.assign({ file, applyTalents, PRESETS, defaults }, engine);
+module.exports = Object.assign({ file, applyTalents, applyConsumables, PRESETS, defaults }, engine);

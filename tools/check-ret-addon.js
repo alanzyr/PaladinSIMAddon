@@ -204,6 +204,41 @@ step('the minimap button: click sims the character, right-click opens and closes
   PAL.combat = true; RSX.char = nil; b.scripts.OnClick(b, "LeftButton"); PAL.combat = false; assert(not RSX.jobRunning() and MOCK.chat[#MOCK.chat]:find("in combat", 1, true), "no sentence in combat")
   b.scripts.OnEnter(b); b.scripts.OnLeave(b); b.scripts.OnDragStart(b); b.scripts.OnUpdate(b); b.scripts.OnDragStop(b); assert(type(RSX.db.options.minimapAngle) == "number")
   SlashCmdList.RETSIM("minimap"); assert(not b:IsShown() and RSX.db.options.minimapButton == false); SlashCmdList.RETSIM("minimap"); assert(b:IsShown()); return string.format("%.1f DPS from the click", RSX.last.mean)`);
+// ---- settings codes
+{
+  const chosen = { flask: 'supreme', food: 'fishap', elixAgi: 'mongoose', chili: true, kings: false, fight: 240, bossArmor: 4200, consMinPct: 55 };
+  const all = {}; for (const fl of JS.FIELDS) if (['buff', 'cons', 'tgt', 'rot'].includes(fl.g)) all[fl.k] = D[fl.k];
+  Object.assign(all, chosen, { mode: 'sorFury', somethingNew: 7 });
+  const site = 'RSS1:' + Buffer.from(JSON.stringify({ v: 1, settings: all })).toString('base64');
+  const vS = JS.applyConsumables(Object.assign({}, expV, chosen));
+  let sum = 0; { const c = JS.derive(vS), m = JS.resolveMode('sorFury', vS.wSpeed); for (let i = 0; i < FIGHTS; i++) sum += JS.simulate(c, m, 4242 * 7919 + i * 104729, false).dps; }
+  step('Import: a settings code from the website sets buffs, consumables, encounter and rotation', `RSX.db.settings = {}; RSX.db.options.mode = "auto"; MOCK.click("Import")
+    assert(RetSimDumpFrame:IsShown() and RetSimDumpFrame.go:IsShown(), "no paste window"); RetSimDumpFrame.box:SetText(${JSON.stringify(site)}); RetSimDumpFrame.go.scripts.OnClick(RetSimDumpFrame.go)
+    assert(not RetSimDumpFrame:IsShown(), "the window stays open after a good code"); local st = RSX.db.settings
+    assert(st.flask == "supreme" and st.food == "fishap" and st.chili == true and st.kings == false and st.fight == 240 and st.bossArmor == 4200 and st.consMinPct == 55, "settings not taken")
+    assert(RSX.db.options.mode == "sorFury" and st.somethingNew == nil and st.mode == nil, "rotation or an unknown key")
+    assert(MOCK.chat[#MOCK.chat]:find("settings taken from the code", 1, true) and MOCK.chat[#MOCK.chat]:find("somethingNew", 1, true), MOCK.chat[#MOCK.chat])
+    SlashCmdList.RETSIM("sim"); ${PUMP}; local r = RSX.last
+    assert(math.abs(r.mean - ${sum / FIGHTS}) < 1e-6, "DPS " .. r.mean .. " instead of ${sum / FIGHTS}"); assert(r.mode.key == "sorFury")
+    assert(MOCK.findLike("FontString", "Consumables from your settings: Flask of Supreme Power"), "the consumables are not named in the window")
+    return string.format("%.2f DPS with the code's settings, as on the website; consumables: %s", r.mean, table.concat(RSX.consumablesNow(), ", "))`);
+  const out = step('/rsim settings and the Settings code button: your settings as a code', `SlashCmdList.RETSIM("settings"); assert(RetSimDumpFrame:IsShown() and not RetSimDumpFrame.go:IsShown(), "the code window")
+    local code = RetSimDumpFrame.box:GetText(); RetSimDumpFrame:Hide(); MOCK.click("Settings code"); assert(RetSimDumpFrame:IsShown() and RetSimDumpFrame.box:GetText() == code); return code`);
+  if (out) {
+    const j = JSON.parse(Buffer.from(out.slice(5), 'base64').toString('utf8'));
+    for (const k in chosen) assert.strictEqual(j.settings[k], chosen[k], 'setting ' + k);
+    assert.strictEqual(j.settings.mode, 'sorFury'); assert.strictEqual(j.settings.might, true); assert.strictEqual(j.settings.flask, 'supreme');
+    assert.strictEqual(Object.keys(j.settings).length, Object.keys(all).length - 1);
+    console.log('ok   the code read back as the website reads it: ' + Object.keys(j.settings).length + ' settings, the ones from the import among them');
+  }
+  step('a damaged code, a gear code and a wrong value change nothing', `local before = RSX.settingsCode(); RSX.showImport(); RetSimDumpFrame.box:SetText("RSS1:abc"); RetSimDumpFrame.go.scripts.OnClick(RetSimDumpFrame.go)
+    assert(RetSimDumpFrame:IsShown() and RetSimDumpFrame.head:GetText():find("incomplete or damaged", 1, true), "no sentence for a damaged code")
+    local ok, why = RSX.importCode(RSX.exportCode()); assert(not ok and why:find("gear code", 1, true), tostring(why))
+    local ok2, why2 = RSX.importCode(${JSON.stringify('RSS1:' + Buffer.from(JSON.stringify({ v: 1, settings: { flask: 'nonsense', fight: 'long', kings: 1, mode: 'dance' } })).toString('base64'))}); assert(not ok2 and why2:find("Nothing in that code", 1, true), tostring(why2))
+    assert(RSX.settingsCode() == before, "the settings changed"); RetSimDumpFrame:Hide(); return why`);
+  step('/rsim import with the code on the chat line; /rsim reset puts the defaults back', `SlashCmdList.RETSIM("import " .. ${JSON.stringify('RSS1:' + Buffer.from(JSON.stringify({ v: 1, settings: { sapper: true } })).toString('base64'))}); assert(RSX.db.settings.sapper == true)
+    SlashCmdList.RETSIM("reset"); assert(next(RSX.db.settings) == nil and RSX.db.options.mode == "auto" and #RSX.consumablesNow() == 0); return MOCK.chat[#MOCK.chat]`);
+}
 console.log(host.limits());
 console.log(failed ? failed + ' step(s) FAILED' : 'all steps passed');
 process.exit(failed ? 1 : 0);

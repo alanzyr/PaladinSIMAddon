@@ -2,7 +2,7 @@
 ## Title: Forever Ret Sim
 ## Notes: Simulates your Retribution Paladin's DPS inside the game, with your own talents, gear and weapon. Type /rsim
 ## Author: alanzyr, built on Xn's Warlock Sim
-## Version: 0.4.1
+## Version: 0.5.0
 ## SavedVariables: RetSimDB
 ## IconTexture: Interface\Icons\Spell_Holy_AuraOfLight
 
