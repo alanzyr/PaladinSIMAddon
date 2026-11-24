@@ -20,7 +20,7 @@ RS.SHEET = {
   spHasChampion = true,         -- Holy spell power includes Champion of the Light (a share of Intellect)
 }
 
-RS.BLADE_OF_HANNA, RS.LIBRAM_OF_LAW = 2801, 272435
+RS.BLADE_OF_HANNA, RS.LIBRAM_OF_LAW, RS.LIBRAM_OF_FERVOR = 2801, 272435, 23203
 
 function RS.valuesFromSheet(ch, settings)
   local notes = {}
@@ -64,6 +64,7 @@ function RS.valuesFromSheet(ch, settings)
   -- items and enchants with an effect of their own in the fight
   v.hanna = worn.mainHand == RS.BLADE_OF_HANNA
   v.judgeMult = worn.relic == RS.LIBRAM_OF_LAW and 1.04 or 1
+  v.jotcLibram = worn.relic == RS.LIBRAM_OF_FERVOR and 33 or 0
   -- the effects of what you wear that are played in the fight (RS.PROCS): items, the weapon enchant, set bonuses
   v.wornItems, v.wornEnchant = worn.items or {}, worn.mainEnchant
   v.procs = RS.wornProcs(v.wornItems, v.wornEnchant, v.procPPM)

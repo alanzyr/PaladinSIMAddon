@@ -71,7 +71,8 @@ function RS.simulateOnce(c, mode, seed)
     for i = 1, #PR do local x = PR[i]; if x.p.buff and x.p.buff.tillCrit and t < x.up then x.upT = x.upT - max(0, min(x.up, T) - t); x.up = t end end
     st.vSt = min(c.vengStacks, (t < st.vExp and st.vSt or 0) + 1); st.vExp = t + 30
   end
-  local function spNow(t) return sp0 + (t < st.jotcExp and c.jotc or 0) + (t < st.formUntil and c.formSP or 0) + pSP(t) end
+  local jotcVal = c.jotc + (c.jotcExt and 0 or (c.jotcLibram or 0))   -- your own Judgement of the Crusader carries your libram's bonus
+  local function spNow(t) return sp0 + (t < st.jotcExp and jotcVal or 0) + (t < st.formUntil and c.formSP or 0) + pSP(t) end
   local function holy(t) return veng(t) * c.twoH * (t < st.consUntil and 1 + c.consecratedGround / 100 or 1) end
   local function wpn() return c.wMin + R() * (c.wMax - c.wMin) + (c.ap + (st.nowT < st.formUntil and c.formAP or 0) + pAP(st.curT)) / 14 * c.wSpeed end
   local function rnd(a, b) return a + R() * (b - a) end
@@ -146,6 +147,7 @@ function RS.simulateOnce(c, mode, seed)
     if res == 'glance' then d = d * c.glanceDmg / 100 end
     if res == 'crit' then d = d * 2 end
     rec('Autoattack', d, res)
+    if not c.jotcExt and t < st.jotcExp then st.jotcExp = t + c.jotcDur end   -- a landed swing keeps your own Judgement up
     if res == 'crit' then onCrit(t) end
     if c.hanna then
       st.formStacks = st.formStacks + 1
@@ -247,6 +249,7 @@ function RS.simulateOnce(c, mode, seed)
     if cr then d = d * 2 end
     chili(t)
     rec('Windfury Totem', d, cr and 'crit' or 'hit')
+    if not c.jotcExt and t < st.jotcExp then st.jotcExp = t + c.jotcDur end
     if cr then onCrit(t) end
     itemProcs(t, 'wf')
   end

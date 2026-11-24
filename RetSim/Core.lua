@@ -263,7 +263,7 @@ function RS.dumpText()
   end
   if RS.values then
     local v, keep = RS.values, {}
-    for _, k in ipairs({ 'race', 'str', 'int', 'apGear', 'crit', 'hit', 'exp', 'sp', 'holyOnly', 'spellCrit', 'spellHit', 'mana', 'mp5', 'haste', 'wMin', 'wMax', 'wSpeed', 'hanna', 'judgeMult' }) do keep[k] = v[k] end
+    for _, k in ipairs({ 'race', 'str', 'int', 'apGear', 'crit', 'hit', 'exp', 'sp', 'holyOnly', 'spellCrit', 'spellHit', 'mana', 'mp5', 'haste', 'wMin', 'wMax', 'wSpeed', 'hanna', 'judgeMult', 'jotcLibram' }) do keep[k] = v[k] end
     d.simValues, d.simNotes, d.simTotals = keep, RS.valueNotes, RS.totals(v)
   end
   d.options, d.selfTest, d.lastError = RS.db.options, RS.db.selfTest, RS.lastError

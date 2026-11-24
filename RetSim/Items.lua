@@ -138,6 +138,7 @@ function RS.valuesWithSwap(v, new, olds, slot, newID)
     d.weapon = new.weapon
   elseif slot == 18 then
     o.judgeMult = newID == RS.LIBRAM_OF_LAW and 1.04 or 1
+    o.jotcLibram = newID == RS.LIBRAM_OF_FERVOR and 33 or 0
   end
   -- the effects played in the fight follow the swap (a proc on the new item, a set bonus gained or lost)
   if v.wornItems then
