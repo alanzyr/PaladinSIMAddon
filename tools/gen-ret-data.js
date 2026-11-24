@@ -32,7 +32,7 @@ const ITEMS = cut('ITEMS', '['), SETS = cut('SETS', '{'), ENCHANTS = cut('ENCHAN
 const procLines = [], procSets = [];
 for (const k of Object.keys(JS.PROCS)){
   const p = Object.assign({}, JS.PROCS[k]); delete p.r; delete p.x;
-  if (/^\d+$/.test(k)) p.n = (ITEMS.find(i => i.id === +k) || { n: 'Item ' + k }).n;
+  if (/^u?\d+$/.test(k)) p.n = (ITEMS.find(i => i.id === +k.replace('u', '')) || { n: 'Item ' + k }).n;
   else if (k[0] === 'e') p.n = (ENCHANTS.find(e => e.e === +k.slice(1)) || { n: 'Enchant ' + k.slice(1) }).n.replace(/^Enchant: /, '');
   else { const [id, pieces] = k.slice(1).split(':'); p.n = SETS[id].n + ' (' + pieces + ')';
     procSets.push({ key: k, pieces: +pieces, name: SETS[id].n, items: '{ ' + ITEMS.filter(i => String(i.set) === id).map(i => '[' + i.id + '] = true').join(', ') + ' }' }); }

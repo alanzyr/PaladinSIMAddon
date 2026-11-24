@@ -2,7 +2,7 @@
 local ADDON, RS = ...
 if RS.notPaladin then return end
 
-RS.VERSION = "0.6.0"
+RS.VERSION = "0.7.0"
 -- every setting of the fight with the website's default
 RS.DEFAULTS = { race = "human", str = 105, apGear = 0, crit = 3.99, hit = 0, exp = 0, sp = 0, int = 70, spellCrit = 4.67, spellHit = 0, mana = 2282, mp5 = 0, wMin = 153, wMax = 256, wSpeed = 3.8, opener = true, swapFirst = false, useHoW = true, consMinPct = 40, latency = 0.05, kings = true, might = true, battleShout = true, lotp = true, wfTotem = true, soe = true, goa = true, motw = true, arcInt = true, moonkin = true, bow = true, manaSpring = true, manaTide = false, bloodPact = false, sunder = true, faerieFire = true, cor = true, jotcExt = false, jol = false, coe = false, arthas = false, jow = true, flask = "none", elixStr = "none", elixAgi = "none", elixInt = "none", elixSpi = "none", blasted = "none", elixAp = "none", elixSp = "none", elixHoly = "none", elixMp5 = "none", oil = "none", food = "none", combatPot = "none", phalanx = false, grog = false, chili = false, sapper = false, potions = true, runes = true, fight = 180, executePct = 20, bossArmor = 3731, targets = 1, undead = false, baseMiss = 8, baseDodge = 6.5, spellMissBase = 17, glance = 40, glanceDmg = 65, critSupp = 4.8, armorDebuff = 2693, gcd = 1.5, sealCost = 210, sorF0 = 0.306, sorF1 = 0.242, jorMin = 187, jorMax = 203, jorCoef = 0.429, socPPM = 7, socPct = 70, socSpCoef = 0.27, jocMin = 194, jocMax = 211, jocCoef = 0.429, furyFlat = 50, furyCoef = 0.05, jotc = 161, jotcDur = 40, hsPct = 50, hsMin = 97, hsMax = 121, hsNorm = 3.3, hsCoef = 0.205, hsCost = 20, hsCd = 10, judgeCd = 10, judgeCost = 91, consTotal = 312, consCoef = 0.052, consCost = 565, consCd = 8, exoMin = 491, exoMax = 545, exoCost = 345, exoCd = 15, howMin = 489, howMax = 538, howCost = 425, howCd = 6, shockMin = 334, shockMax = 362, shockCost = 325, shockCd = 10, spellCoef = 0.429, hitRating = 10, critRating = 14, expRating = 10, procPPM = 1, agiPerCrit = 20, manaPerInt = 15, vengPct = 1, vengStacks = 5, chiliChance = 5, chiliCd = 10, chiliBase = 36, chiliCoef = 1.2, sapperDmg = 660, wfChance = 20, wfAP = 220, uwDur = 15, totgDmg = 150, jowMana = 59 }
 -- base stats of a level 60 paladin without gear, per race
@@ -88,6 +88,29 @@ RS.PROCS = {
   ["s181:5"] = { pct = 5, on = "cast cons judge sealcast", mana = 200, n = "Magister's Regalia (5)" },
   ["s182:5"] = { pct = 5, on = "cast cons judge sealcast", mana = 200, n = "Vestments of the Devout (5)" },
   ["s506:3"] = { pct = 20, on = "judge", mana = 100, n = "Battlegear of Eternal Justice (3)" },
+  ["u14554"] = { use = { cd = 900, g = "t", lock = 30 }, buff = { ap = 100, dur = 30 }, tx = "+100 Attack Power", n = "Cloudkeeper Legplates" },
+  ["u280071"] = { use = { cd = 300, g = "t", lock = 30 }, buff = { agi = 33, dur = 30 }, tx = "+33 Agility", n = "Flamebreak Talisman" },
+  ["u270226"] = { use = { cd = 300, g = "t", lock = 15 }, buff = { all = 16, dur = 15 }, tx = "+16 all stats", n = "Golden Banana" },
+  ["u13965"] = { use = { cd = 300, g = "t", lock = 20 }, buff = { crit = 5, dur = 20 }, tx = "+5% crit", n = "Blackhand's Breadth" },
+  ["u272438"] = { use = { cd = 360, g = "t", lock = 20 }, buff = { crit = 5, dur = 20, tillCrit = true }, tx = "+5% crit until your next crit", n = "Weakness Analyzer" },
+  ["u13968"] = { use = { cd = 300, g = "t", lock = 20 }, buff = { spellHit = 7, dur = 20 }, tx = "+7% spell hit", n = "Eye of the Beast" },
+  ["u22678"] = { use = { cd = 60, g = "t", lock = 20 }, buff = { dur = 20 }, stack = { sp = 40, max = 5 }, tx = "+40 spell damage per Holy Strike, seal hit, Judgement or spell (up to 5)", n = "Talisman of Ascendance" },
+  ["u11832"] = { use = { cd = 360, g = "m", lock = 10 }, buff = { cost = 150, dur = 10 }, tx = "\226\136\146150 mana on every cast", n = "Burst of Knowledge" },
+  ["u11905"] = { use = { cd = 180, g = "t", lock = 10 }, dd = { 113, 187, "phys" }, n = "Linken's Boomerang" },
+  ["u8348"] = { use = { cd = 300, g = "t", lock = 10 }, dd = { 286, 376, "fire" }, dot = { 33, 2, 4, "fire" }, n = "Helm of Fire" },
+  ["u274759"] = { use = { cd = 300, g = "t", lock = 15 }, dd = { 607, 607, "physical" }, n = "Everlook Pathcarver" },
+  ["u13171"] = { use = { cd = 90, g = "t", lock = 10 }, dd = { 210, 210, "fire" }, aoe = 99, n = "Smokey's Lighter" },
+  ["u14134"] = { use = { cd = 120 }, dot = { 25, 5, 3, "fire" }, aoe = 99, sure = true, n = "Cloak of Fire" },
+  ["u10455"] = { use = { cd = 600, g = "t", lock = 20 }, dot = { 140, 2, 10, "nature" }, aoe = 99, sure = true, n = "Chained Essence of Eranikus" },
+  ["u274760"] = { use = { cd = 300, g = "t", lock = 20 }, after = { 6, 8 }, afterDur = 20, dd = { 467, 467, "fire" }, n = "Everlook Delivery Bot" },
+  ["u20512"] = { use = { cd = 300, need = 361 }, mana = 340, n = "Sanctified Orb" },
+  ["u20525"] = { use = { cd = 180, need = 400 }, mana = 400, n = "Earthen Sigil" },
+  ["u11819"] = { use = { cd = 900, g = "m", lock = 10, need = 630 }, mana = 630, n = "Second Wind" },
+  ["u18371"] = { use = { cd = 420, g = "m", lock = 10, need = 1250 }, mana = 1250, n = "Mindtap Talisman" },
+  ["u13382"] = { no = "the cannon is not played (the number of shots is not known)", n = "Cannonball Runner" },
+  ["u7734"] = { no = "its effects are not known", n = "Six Demon Bag" },
+  ["u14022"] = { no = "the servants are not played (their damage is not known)", n = "Barov Peasant Caller" },
+  ["u14023"] = { no = "the servants are not played (their damage is not known)", n = "Barov Peasant Caller" },
 }
 -- the sets with such a bonus: how many pieces it takes and the items that count
 RS.PROC_SETS = {

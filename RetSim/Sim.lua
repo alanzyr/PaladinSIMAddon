@@ -7,7 +7,7 @@
 local ADDON, RS = ...
 if RS.notPaladin then return end   -- not a Paladin: nothing of the addon loads (Class.lua)
 
-local min, max, huge, sort, remove = math.min, math.max, math.huge, table.sort, table.remove
+local min, max, huge, sort, remove, floor = math.min, math.max, math.huge, table.sort, table.remove, math.floor
 
 function RS.simulateOnce(c, mode, seed)
   local R = RS.makeRng(seed)
@@ -36,7 +36,13 @@ function RS.simulateOnce(c, mode, seed)
   local CAST_EV = { cast = true, cons = true, how = true, judge = true, sealcast = true }
   -- "Chance on hit" effects of the worn items: up = buff or armour debuff runs until, left/next = damage over time, late = delayed hit
   local PR = {}
-  for i = 1, #(c.procs or {}) do PR[i] = { p = c.procs[i], up = -1, left = 0, next = huge, late = huge, cd = -1, n = 0, upT = 0 } end
+  local function addEffect(p) PR[#PR + 1] = { p = p, up = -1, left = 0, next = huge, late = huge, cd = -1, n = 0, upT = 0, useAt = p.use and 0 or huge, need = 0, needEnd = huge, stk = 0 } end
+  for i = 1, #(c.procs or {}) do addEffect(c.procs[i]) end
+  if RS.COMBAT_POTS[c.combatPot] then
+    local pots = RS.procList({ RS.COMBAT_POTS[c.combatPot] }, 1)
+    for i = 1, #pots do addEffect(pots[i]) end
+  end
+  local useLock = {}
   local function pBuff(t, k)
     local a = 0
     for i = 1, #PR do local x = PR[i]; if t < x.up and x.p.buff and x.p.buff[k] then a = a + x.p.buff[k] end end
@@ -44,8 +50,13 @@ function RS.simulateOnce(c, mode, seed)
   end
   -- a buff to all stats counts as Blade of Hanna's does: Attack Power from Strength, crit from Agility, spell damage from Intellect
   local function pAP(t) if #PR == 0 then return 0 end return (pBuff(t, 'str') + pBuff(t, 'all')) * c.strAP + pBuff(t, 'ap') end
-  local function pCrit(t) if #PR == 0 then return 0 end return pBuff(t, 'crit') + pBuff(t, 'all') * c.formCrit / 20 end
-  local function pSP(t) if #PR == 0 then return 0 end return pBuff(t, 'sp') + pBuff(t, 'all') * c.formSP / 20 end
+  local function pCrit(t) if #PR == 0 then return 0 end return pBuff(t, 'crit') + (pBuff(t, 'all') + pBuff(t, 'agi')) * c.formCrit / 20 end
+  local function pStack(t)
+    local a = 0
+    for i = 1, #PR do local x = PR[i]; if x.p.stack and t < x.up then a = a + x.stk * x.p.stack.sp end end
+    return a
+  end
+  local function pSP(t) if #PR == 0 then return 0 end return pBuff(t, 'sp') + pBuff(t, 'all') * c.formSP / 20 + pStack(t) end
   local function armorAt(t)
     local a = 0
     for i = 1, #PR do local x = PR[i]; if t < x.up and x.p.armor then a = a + x.p.armor[1] end end
@@ -55,7 +66,11 @@ function RS.simulateOnce(c, mode, seed)
   end
 
   local function veng(t) return 1 + (t < st.vExp and st.vSt * c.vengPct * c.vengRank / 100 or 0) end
-  local function onCrit(t) st.vSt = min(c.vengStacks, (t < st.vExp and st.vSt or 0) + 1); st.vExp = t + 30 end
+  local function onCrit(t)
+    -- a buff that ends on your next crit
+    for i = 1, #PR do local x = PR[i]; if x.p.buff and x.p.buff.tillCrit and t < x.up then x.upT = x.upT - max(0, min(x.up, T) - t); x.up = t end end
+    st.vSt = min(c.vengStacks, (t < st.vExp and st.vSt or 0) + 1); st.vExp = t + 30
+  end
   local function spNow(t) return sp0 + (t < st.jotcExp and c.jotc or 0) + (t < st.formUntil and c.formSP or 0) + pSP(t) end
   local function holy(t) return veng(t) * c.twoH * (t < st.consUntil and 1 + c.consecratedGround / 100 or 1) end
   local function wpn() return c.wMin + R() * (c.wMax - c.wMin) + (c.ap + (st.nowT < st.formUntil and c.formAP or 0) + pAP(st.curT)) / 14 * c.wSpeed end
@@ -85,10 +100,11 @@ function RS.simulateOnce(c, mode, seed)
     return 'hit'
   end
   local function rollSpell()
-    if R() * 100 < c.spellMiss then return 'miss' end
+    if R() * 100 < (#PR > 0 and max(1, c.spellMiss - pBuff(st.curT, 'spellHit')) or c.spellMiss) then return 'miss' end
     return R() * 100 < c.spellCrit + pCrit(st.curT) and 'crit' or 'hit'
   end
   local function pay(key, cost)
+    if #PR > 0 then cost = max(0, cost - pBuff(st.curT, 'cost')) end
     if st.mana >= cost then st.mana = st.mana - cost; st.manaUsed = st.manaUsed + cost; blk[key] = false; return true end
     if not blk[key] then blk[key] = true; st.blocked = st.blocked + 1 end
     return false
@@ -282,6 +298,8 @@ function RS.simulateOnce(c, mode, seed)
     local melee
     if p.dd then melee = p.dd[3] == 'phys' else melee = p.dot ~= nil and (p.dot[4] == 'bleed' or p.dot[4] == 'phys') end
     local landed = true
+    if p.after and ev == 'use' then x.need = floor(rnd(p.after[1], p.after[2] + 1)); x.needEnd = t + (p.afterDur or huge); return end
+    if p.stack then x.stk = 0 end
     if p.dd then
       local d = rnd(p.dd[1], p.dd[2])
       if p.exec and t >= T * (1 - p.exec[1] / 100) then d = d * p.exec[2] end
@@ -310,6 +328,16 @@ function RS.simulateOnce(c, mode, seed)
     for i = 1, #PR do
       local x = PR[i]
       local p = x.p
+      if ev ~= 'joc' and ev ~= 'chain' and ev ~= 'sealcast' then
+        if x.need > 0 then
+          if t > x.needEnd then x.need = 0
+          else
+            x.need = x.need - 1
+            if x.need == 0 then x.n = x.n - 1; pFire(x, t, 'after') end
+          end
+        end
+        if p.stack and t < x.up and ev ~= 'white' and ev ~= 'wf' and x.stk < p.stack.max then x.stk = x.stk + 1 end
+      end
       if not p.follow and p.ev[ev] and t >= x.cd and not (p.extra and st.inExtra)
         and R() < (p.pct and p.pct / 100 or p.ppm * (CAST_EV[ev] and 1.5 or c.wSpeed) / 60) then
         if p.icd then x.cd = t + p.icd end
@@ -412,6 +440,18 @@ function RS.simulateOnce(c, mode, seed)
   for guard = 1, 200000 do
     st.curT = t
     if #PR > 0 then procTicks(t) end
+    for i = 1, #PR do
+      local x = PR[i]
+      local u = x.p.use
+      if x.need > 0 and t > x.needEnd then x.need = 0 end
+      if u and t >= x.useAt - 1e-9 and t >= (useLock[u.g or 0] or 0) - 1e-9 and x.need <= 0
+        and not (u.need and st.mana > c.mana - u.need) and not (u.gcd and t < st.gcd) then
+        if u.gcd then st.gcd = t + c.gcd + c.latency end
+        x.useAt = t + u.cd
+        if u.lock then useLock[u.g or 0] = t + u.lock end
+        pFire(x, t, 'use')
+      end
+    end
     while st.nextSwing <= t + 1e-9 do
       swing(st.nextSwing)
       st.nextSwing = st.nextSwing + swingT / (#PR > 0 and 1 + pBuff(st.nextSwing, 'haste') / 100 or 1)
@@ -433,7 +473,12 @@ function RS.simulateOnce(c, mode, seed)
     x = st.cdCons;        if x > t + 1e-9 and x < n then n = x end
     x = st.cdShock;       if x > t + 1e-9 and x < n then n = x end
     x = execAt;           if x > t + 1e-9 and x < n then n = x end
-    for i = 1, #PR do local q = PR[i]; if q.next < n then n = q.next end; if q.late < n then n = q.late end end
+    for i = 1, #PR do
+      local q = PR[i]
+      if q.next < n then n = q.next end
+      if q.late < n then n = q.late end
+      if q.p.use then local a = max(q.useAt, useLock[q.p.use.g or 0] or 0); if a > t + 1e-9 and a < n then n = a end end
+    end
     if n >= T then break end
     t = n
   end

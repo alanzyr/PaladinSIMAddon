@@ -25,7 +25,7 @@ If you play a Warlock, you want Xn's addon: [CurseForge](https://www.curseforge.
 [original repository](https://github.com/XNWLK/WarlockSIMAddon). This repository only holds the paladin addon, in the
 folder `RetSim`.
 
-> **Status: version 0.6, a test version.** It reads your character, plays the fights, shows your DPS with a line per
+> **Status: version 0.7, a test version.** It reads your character, plays the fights, shows your DPS with a line per
 > damage source, and sims a single item against what you wear. Built for the WoW: Forever client (interface 16001).
 
 ## Install
@@ -76,7 +76,9 @@ character's level and race, not its name.
   weapon enchants (Crusader, the Forever "Grand" enchants, Fiery Blaze) and set bonuses that proc. The table (`RS.PROCS`
   in `Data.lua`) is the website's; an item sim follows a proc or set bonus gained or lost with the swap.
 
-Not there yet: on-use trinkets, a line per proc in the result window, stat weights, and a window to change single
+On-use trinkets and the combat potion are used at the pull and again whenever they are ready.
+
+Not there yet: a line per proc in the result window, stat weights, and a window to change single
 settings inside the game (for now they come from the website with a settings code).
 
 ### Consumables

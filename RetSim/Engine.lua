@@ -107,9 +107,7 @@ function RS.applyConsumables(v)
   elseif v.oil == 'dense' then v.wMin = v.wMin + 8; v.wMax = v.wMax + 8 end
   if v.food == 'dumplings' then v.str = v.str + 20 elseif v.food == 'fishap' then v.apGear = v.apGear + 40 elseif v.food == 'fishsp' then v.sp = v.sp + 28 end
   if v.combatPot ~= nil and v.combatPot ~= 'none' then
-    -- 30 s buff on the shared 2 min potion cooldown, used from the pull: applied as its average over the fight
-    local up = min(1, (1 + floor(max(0, v.fight - 30) / 120)) * 30 / max(1, v.fight))
-    if v.combatPot == 'frenzy' then v.apGear = v.apGear + 80 * up else v.sp = v.sp + 47 * up end
+    -- the potion itself is played in the fight (RS.COMBAT_POTS); it shares the cooldown with mana potions
     v.potions = false
   end
   return v
@@ -121,12 +119,17 @@ end
 -- What the fight plays for the worn items' effects (the website's procList). defs: entries of RS.PROCS, each with the
 -- name n to show. on: the events that roll it (default: every melee hit). alt: one of several outcomes, picked by weight w.
 local PROC_EV = 'white wf hs seal joc'
+-- combat potions: drunk at the pull and again when the potion cooldown is over
+RS.COMBAT_POTS = {
+  frenzy = { n = 'Major Frenzy Potion', use = { cd = 120 }, buff = { ap = 80, dur = 30 }, tx = '+80 Attack Power' },
+  spellblast = { n = 'Major Spellblasting Potion', use = { cd = 120 }, buff = { sp = 47, dur = 30 }, tx = '+47 spell damage' },
+}
 function RS.procList(defs, ppm)
   local out = {}
   for di = 1, #defs do
     local d = defs[di]
     local ev = {}
-    for w in (d.on or PROC_EV):gmatch('%S+') do ev[w] = true end
+    if not d.use then for w in (d.on or PROC_EV):gmatch('%S+') do ev[w] = true end end
     if ev.white and not d.on then ev.chain = true end
     if not d.alt then
       local o = {}
@@ -161,8 +164,12 @@ function RS.wornProcs(items, enchant, ppm)
   local defs, seen = {}, {}
   for inv = 1, 18 do
     local id = items[inv]
-    local p = id and RS.PROCS[id]
-    if p and not p.no and not seen[id] then seen[id] = true; defs[#defs + 1] = p end
+    if id and not seen[id] then
+      seen[id] = true
+      local p, u = RS.PROCS[id], RS.PROCS['u' .. id]
+      if p and not p.no then defs[#defs + 1] = p end
+      if u and not u.no then defs[#defs + 1] = u end
+    end
   end
   local e = enchant and RS.PROCS['e' .. enchant]
   if e and not e.no then defs[#defs + 1] = e end
