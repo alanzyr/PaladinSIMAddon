@@ -20,15 +20,6 @@ RS.SHEET = {
   spHasChampion = true,         -- Holy spell power includes Champion of the Light (a share of Intellect)
 }
 
--- Main-hand enchants that are a timed buff: Strength or spell power for a while (enchant id -> what and how long).
--- Counted as an average: the Crusader uptime from the settings, stretched to the buff's length.
-local PROC_ENCHANTS = {
-  [1900] = { str = 100, dur = 15 },   -- Crusader
-  [7940] = { str = 120, dur = 20 },   -- Grand Crusader
-  [7943] = { str = 200, dur = 20 },   -- Grand Inquisitor
-  [7941] = { sp = 140, dur = 20 },    -- Grand Arcanist
-  [7942] = { sp = 70, dur = 20 },     -- Grand Sorcerer
-}
 RS.BLADE_OF_HANNA, RS.LIBRAM_OF_LAW = 2801, 272435
 
 function RS.valuesFromSheet(ch, settings)
@@ -73,12 +64,9 @@ function RS.valuesFromSheet(ch, settings)
   -- items and enchants with an effect of their own in the fight
   v.hanna = worn.mainHand == RS.BLADE_OF_HANNA
   v.judgeMult = worn.relic == RS.LIBRAM_OF_LAW and 1.04 or 1
-  local pe = worn.mainEnchant and PROC_ENCHANTS[worn.mainEnchant]
-  if pe then
-    local up = 1 - (1 - v.crusaderUptime / 100) ^ (pe.dur / 15)
-    if pe.str then v.str = v.str + pe.str * up end
-    if pe.sp then v.sp = v.sp + pe.sp * up end
-  end
+  -- the effects of what you wear that are played in the fight (RS.PROCS): items, the weapon enchant, set bonuses
+  v.wornItems, v.wornEnchant = worn.items or {}, worn.mainEnchant
+  v.procs = RS.wornProcs(v.wornItems, v.wornEnchant, v.procPPM)
 
   -- a number below zero means the sheet held less than was taken off: say so and stop at zero
   local FLOOR = { apGear = 'Attack Power from gear', crit = 'melee crit', hit = 'hit', spellHit = 'spell hit', sp = 'spell power', spellCrit = 'spell crit', mp5 = 'mana per 5 s', mana = 'mana' }

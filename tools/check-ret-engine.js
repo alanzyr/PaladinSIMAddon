@@ -20,6 +20,7 @@ lua.run(`
 function CHECK(v, ranks, modeKey, seed)
   local RS = RSX
   RS.applyTalents(v, ranks)
+  if v.procDefs then v.procs = RS.procList(v.procDefs, v.procPPM) end
   local c = RS.derive(v)
   local r = RS.simulateOnce(c, RS.resolveMode(modeKey, v.wSpeed), seed)
   local out = { string.format('dps=%.17g', r.dps), string.format('mana=%.17g', r.mana), string.format('manaUsed=%.17g', r.manaUsed),
@@ -33,6 +34,7 @@ end`, '=check');
 
 function jsFight(v0, ranks, modeKey, seed) {
   const v = JS.applyTalents(ranks, Object.assign({}, v0));
+  if (v.procDefs) v.procs = JS.procList(v.procDefs, v.procPPM);
   const c = JS.derive(v);
   const r = JS.simulate(c, JS.resolveMode(modeKey, v.wSpeed), seed, false);
   const out = { dps: r.dps, mana: r.mana, manaUsed: r.manaUsed, echoes: r.echoes, swings: r.swings, blocked: r.blocked, S: r.S };
@@ -66,6 +68,11 @@ const SETUPS = [
   ['dwarf, no opener, no Hammer of Wrath', with_({ race: 'dwarf', str: 107, int: 69, crit: 3.79, mana: 2267, opener: false, useHoW: false }), P.raid],
   ['undead player, long fight, no potions', with_({ race: 'undead', str: 104, int: 68, crit: 3.89, mana: 2252, fight: 420, potions: false, runes: false }), P.raid],
   ['short fight, high armor, low mana', with_({ fight: 45, bossArmor: 5200, mana: 900, mp5: 0, consMinPct: 80 }), P.ws],
+  // "Chance on hit" effects of items, as the page hands them to the fight (PROCS on the page)
+  ['procs: Strength buff, and a fire hit that burns on', with_({ procDefs: [{ n: 'Destiny', ppm: 1.2, buff: { str: 200, dur: 12 }, tx: '+200 Strength' }, { n: 'Taran Icebreaker', ppm: 2, dd: [270, 330, 'fire'], dot: [25, 2, 4, 'fire'] }], coe: true, wSpeed: 3.6 }), P.ws],
+  ['procs: haste and Attack Power, armor off, physical hit with execute', with_({ procDefs: [{ n: 'Ragehammer', ppm: 1.5, buff: { ap: 102, haste: 6, dur: 15 }, tx: 'x' }, { n: 'Sunderer', ppm: 2, armor: [300, 20], tx: 'x' }, { n: 'Doomsaw', ppm: 1, dd: [373, 523, 'phys'], exec: [25, 1.5] }], haste: 2 }), P.ws],
+  ['procs: one of several outcomes, spell casts, Judgement mana, an extra attack, no set rate', with_({ procDefs: [{ n: 'Shahram', ppm: 3, alt: [{ w: 3, s: 'Flames', dd: [90, 160, 'fire'], aoe: 99, nc: true }, { w: 3, s: 'Will', buff: { all: 50, dur: 20 }, tx: 'x' }, { w: 1, s: 'Blessing', mana: 200 }, { w: 3 }] }, { n: 'Emblem', pct: 10, on: 'cast', buff: { sp: 35, dur: 10 }, tx: 'x' }, { n: 'Soulforge', ppm: 2, on: 'white wf cast', buff: { sp: 65, dur: 10 }, tx: 'x' }, { n: 'Eternal Justice', pct: 20, on: 'judge', mana: 100 }, { n: 'Hand of Justice', pct: 4, on: 'white wf hs', extra: true }, { n: 'Caer Darrow', pct: 100, on: 'white wf hs', dd: [22, 33, 'frost'] }, { n: 'Unknown rate', dd: [100, 152, 'nature'] }], undead: true, procPPM: 1.3, mana: 1500 }), P.ws],
+  ['procs: bleed, shadow dot, delayed hit, crit buff, three targets', with_({ procDefs: [{ n: 'Gatorbite Axe', ppm: 2, dot: [30, 1, 7, 'bleed'] }, { n: 'Frightskull Shaft', ppm: 3, dot: [15, 2, 7, 'shadow'] }, { n: 'Sul', ppm: 2, dd: [95, 223, 'shadow'], late: [159, 5, 'shadow'] }, { n: 'Darkspear', ppm: 1, pct: 5, icd: 60, buff: { crit: 4, dur: 20 }, tx: 'x' }, { n: 'Barovian', ppm: 1.9, dot: [49, 1, 5, 'shadow'], sure: true }, { n: 'Needler', ppm: 3, dd: [75, 75, 'phys'] }, { n: 'Flame Wrath', ppm: 1, dd: [133, 175, 'fire'], aoe: 99 }, { n: 'Thunderstrike', ppm: 1, dd: [150, 250, 'nature'], aoe: 3, chain: 0.7 }], targets: 3, hanna: true }), P.raid],
 ];
 const MODES = ['auto', 'socSor', 'sorSoc', 'sorFury', 'socOnly', 'sorOnly', 'shock'];
 

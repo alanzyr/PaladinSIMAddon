@@ -139,6 +139,14 @@ function RS.valuesWithSwap(v, new, olds, slot, newID)
   elseif slot == 18 then
     o.judgeMult = newID == RS.LIBRAM_OF_LAW and 1.04 or 1
   end
+  -- the effects played in the fight follow the swap (a proc on the new item, a set bonus gained or lost)
+  if v.wornItems then
+    local items = {}
+    for k, x in pairs(v.wornItems) do items[k] = x end
+    items[slot] = newID
+    o.wornItems = items
+    o.procs = RS.wornProcs(items, v.wornEnchant, v.procPPM)
+  end
   for _, k in ipairs({ 'apGear', 'crit', 'spellCrit', 'hit', 'spellHit', 'exp', 'sp', 'holyOnly', 'mp5' }) do if o[k] < 0 then o[k] = 0 end end
   return o, d
 end

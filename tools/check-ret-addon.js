@@ -103,7 +103,7 @@ step('start-up', 'MOCK.fire("ADDON_LOADED", "SomethingElse"); assert(RSX.db == n
 step('the maths check (/rsim test)', 'SlashCmdList.RETSIM("test"); assert(RSX.db.selfTest.ok, table.concat(RSX.db.selfTest.lines, " | ")); return #RSX.EXPECTED .. " fights equal the website"');
 step('sim in combat without a character says so', 'PAL.combat = true; local ok, why = RSX.simCharacter(); PAL.combat = false; assert(not ok and why:find("in combat", 1, true)); return why');
 step('read the character: the sheet turned back into the sim\'s values', `SlashCmdList.RETSIM("read"); local c, v = RSX.char, RSX.values; assert(c and v, "no character")
-  local want = ${toLua({ str: v0.str + 100 * D.crusaderUptime / 100, int: v0.int, apGear: v0.apGear, crit: v0.crit, hit: v0.hit, exp: v0.exp, sp: v0.sp, spellCrit: v0.spellCrit, spellHit: v0.spellHit, mana: v0.mana, mp5: v0.mp5, wMin: v0.wMin, wMax: v0.wMax, wSpeed: v0.wSpeed, haste: v0.haste })}
+  local want = ${toLua({ str: v0.str, int: v0.int, apGear: v0.apGear, crit: v0.crit, hit: v0.hit, exp: v0.exp, sp: v0.sp, spellCrit: v0.spellCrit, spellHit: v0.spellHit, mana: v0.mana, mp5: v0.mp5, wMin: v0.wMin, wMax: v0.wMax, wSpeed: v0.wSpeed, haste: v0.haste })}
   for k, x in pairs(want) do assert(math.abs(v[k] - x) < 1e-6, k .. ": " .. tostring(v[k]) .. " instead of " .. x) end
   local n = 0; for _, r in pairs(c.talents) do n = n + r end; assert(n == 51, "talent points " .. n)
   assert(c.buffsOnYou.kings and c.buffsOnYou.motw and not c.buffsOnYou.might, "buffs on you")
@@ -118,7 +118,7 @@ step('the weapon without a tooltip comes from the character sheet', `local keep 
   assert(RSX.doReadCharacter()); return RSX.char.raw.weaponFrom`);
 // a sim with a fixed rotation and seed: the same fights in the website's engine
 const FIGHTS = 40;
-const expV = JS.applyTalents(ranks, Object.assign({}, v0, { str: v0.str + 100 * D.crusaderUptime / 100, judgeMult: 1.04, hanna: false, holyOnly: 0, race: 'human' }));
+const expV = JS.applyTalents(ranks, Object.assign({}, v0, { procs: JS.procList([Object.assign({ n: 'Crusader' }, JS.PROCS.e1900)], D.procPPM), judgeMult: 1.04, hanna: false, holyOnly: 0, race: 'human' }));
 {
   const c = JS.derive(expV), m = JS.resolveMode('socSor', expV.wSpeed);
   let sum = 0; for (let i = 0; i < FIGHTS; i++) sum += JS.simulate(c, m, 4242 * 7919 + i * 104729, false).dps;

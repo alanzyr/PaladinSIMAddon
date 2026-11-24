@@ -118,6 +118,66 @@ end
 -- ---------------------------------------------------------------------------------------------------------------------
 -- derive(): settings + talents + gear -> the values one fight is played with
 -- ---------------------------------------------------------------------------------------------------------------------
+-- What the fight plays for the worn items' effects (the website's procList). defs: entries of RS.PROCS, each with the
+-- name n to show. on: the events that roll it (default: every melee hit). alt: one of several outcomes, picked by weight w.
+local PROC_EV = 'white wf hs seal joc'
+function RS.procList(defs, ppm)
+  local out = {}
+  for di = 1, #defs do
+    local d = defs[di]
+    local ev = {}
+    for w in (d.on or PROC_EV):gmatch('%S+') do ev[w] = true end
+    if ev.white and not d.on then ev.chain = true end
+    if not d.alt then
+      local o = {}
+      for k, x in pairs(d) do o[k] = x end
+      o.ppm, o.ev = d.ppm or ppm, ev
+      out[#out + 1] = o
+    else
+      local lead, pick, w = #out + 1, {}, 0
+      for ai = 1, #d.alt do
+        local a = d.alt[ai]
+        w = w + a.w
+        if not (a.dd or a.dot or a.buff or a.armor or a.mana) then
+          pick[#pick + 1] = { a.w, -1 }
+        else
+          pick[#pick + 1] = { a.w, #out + 1 - lead }
+          local o = {}
+          for k, x in pairs(a) do o[k] = x end
+          o.ppm, o.ev, o.pct, o.icd = d.ppm or ppm, ev, d.pct, d.icd
+          o.n = d.n .. (a.s and (': ' .. a.s) or '')
+          o.follow = #out + 1 > lead
+          out[#out + 1] = o
+        end
+      end
+      if #out >= lead then out[lead].pick = pick; out[lead].pickW = w end
+    end
+  end
+  return out
+end
+
+-- The effects of what is worn, as the fight plays them. items: inventory slot -> item id; enchant: the weapon's enchant id.
+function RS.wornProcs(items, enchant, ppm)
+  local defs, seen = {}, {}
+  for inv = 1, 18 do
+    local id = items[inv]
+    local p = id and RS.PROCS[id]
+    if p and not p.no and not seen[id] then seen[id] = true; defs[#defs + 1] = p end
+  end
+  local e = enchant and RS.PROCS['e' .. enchant]
+  if e and not e.no then defs[#defs + 1] = e end
+  for i = 1, #RS.PROC_SETS do
+    local S = RS.PROC_SETS[i]
+    local n, counted = 0, {}
+    for inv = 1, 18 do
+      local id = items[inv]
+      if id and S.items[id] and not counted[id] then counted[id] = true; n = n + 1 end
+    end
+    if n >= S.pieces then defs[#defs + 1] = RS.PROCS[S.key] end
+  end
+  return RS.procList(defs, ppm)
+end
+
 function RS.derive(v)
   local kings = v.kings and 1.1 or 1
   local bInt = (v.arcInt and 39 or 0) + (v.motw and 12 or 0)
@@ -143,6 +203,8 @@ function RS.derive(v)
   c.dodge = max(0, v.baseDodge - v.exp)
   c.spellMiss = min(99, max(1, v.spellMissBase - spellHit))
   c.armorMult = 1 - armor / (armor + 400 + 85 * (60 + 4.5))
+  c.armorF = armor
+  c.strAP = 2 * kings * (1 + v.divineStrength / 100)   -- Attack Power per point of Strength gained in the fight
   c.champSP = v.champion / 100 * int
   c.bened = 1 - v.benediction / 100
   c.conduit = 1 - v.holyConduit / 100

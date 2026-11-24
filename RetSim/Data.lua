@@ -2,9 +2,9 @@
 local ADDON, RS = ...
 if RS.notPaladin then return end
 
-RS.VERSION = "0.5.0"
+RS.VERSION = "0.6.0"
 -- every setting of the fight with the website's default
-RS.DEFAULTS = { race = "human", str = 105, apGear = 0, crit = 3.99, hit = 0, exp = 0, sp = 0, int = 70, spellCrit = 4.67, spellHit = 0, mana = 2282, mp5 = 0, wMin = 153, wMax = 256, wSpeed = 3.8, opener = true, swapFirst = false, useHoW = true, consMinPct = 40, latency = 0.05, kings = true, might = true, battleShout = true, lotp = true, wfTotem = true, soe = true, goa = true, motw = true, arcInt = true, moonkin = true, bow = true, manaSpring = true, manaTide = false, bloodPact = false, sunder = true, faerieFire = true, cor = true, jotcExt = false, jol = false, coe = false, arthas = false, jow = true, flask = "none", elixStr = "none", elixAgi = "none", elixInt = "none", elixSpi = "none", blasted = "none", elixAp = "none", elixSp = "none", elixHoly = "none", elixMp5 = "none", oil = "none", food = "none", combatPot = "none", phalanx = false, grog = false, chili = false, sapper = false, potions = true, runes = true, fight = 180, executePct = 20, bossArmor = 3731, targets = 1, undead = false, baseMiss = 8, baseDodge = 6.5, spellMissBase = 17, glance = 40, glanceDmg = 65, critSupp = 4.8, armorDebuff = 2693, gcd = 1.5, sealCost = 210, sorF0 = 0.306, sorF1 = 0.242, jorMin = 187, jorMax = 203, jorCoef = 0.429, socPPM = 7, socPct = 70, socSpCoef = 0.27, jocMin = 194, jocMax = 211, jocCoef = 0.429, furyFlat = 50, furyCoef = 0.05, jotc = 161, jotcDur = 40, hsPct = 50, hsMin = 97, hsMax = 121, hsNorm = 3.3, hsCoef = 0.205, hsCost = 20, hsCd = 10, judgeCd = 10, judgeCost = 91, consTotal = 312, consCoef = 0.052, consCost = 565, consCd = 8, exoMin = 491, exoMax = 545, exoCost = 345, exoCd = 15, howMin = 489, howMax = 538, howCost = 425, howCd = 6, shockMin = 334, shockMax = 362, shockCost = 325, shockCd = 10, spellCoef = 0.429, hitRating = 10, critRating = 14, expRating = 10, crusaderUptime = 22, agiPerCrit = 20, manaPerInt = 15, vengPct = 1, vengStacks = 5, chiliChance = 5, chiliCd = 10, chiliBase = 36, chiliCoef = 1.2, sapperDmg = 660, wfChance = 20, wfAP = 220, uwDur = 15, totgDmg = 150, jowMana = 59 }
+RS.DEFAULTS = { race = "human", str = 105, apGear = 0, crit = 3.99, hit = 0, exp = 0, sp = 0, int = 70, spellCrit = 4.67, spellHit = 0, mana = 2282, mp5 = 0, wMin = 153, wMax = 256, wSpeed = 3.8, opener = true, swapFirst = false, useHoW = true, consMinPct = 40, latency = 0.05, kings = true, might = true, battleShout = true, lotp = true, wfTotem = true, soe = true, goa = true, motw = true, arcInt = true, moonkin = true, bow = true, manaSpring = true, manaTide = false, bloodPact = false, sunder = true, faerieFire = true, cor = true, jotcExt = false, jol = false, coe = false, arthas = false, jow = true, flask = "none", elixStr = "none", elixAgi = "none", elixInt = "none", elixSpi = "none", blasted = "none", elixAp = "none", elixSp = "none", elixHoly = "none", elixMp5 = "none", oil = "none", food = "none", combatPot = "none", phalanx = false, grog = false, chili = false, sapper = false, potions = true, runes = true, fight = 180, executePct = 20, bossArmor = 3731, targets = 1, undead = false, baseMiss = 8, baseDodge = 6.5, spellMissBase = 17, glance = 40, glanceDmg = 65, critSupp = 4.8, armorDebuff = 2693, gcd = 1.5, sealCost = 210, sorF0 = 0.306, sorF1 = 0.242, jorMin = 187, jorMax = 203, jorCoef = 0.429, socPPM = 7, socPct = 70, socSpCoef = 0.27, jocMin = 194, jocMax = 211, jocCoef = 0.429, furyFlat = 50, furyCoef = 0.05, jotc = 161, jotcDur = 40, hsPct = 50, hsMin = 97, hsMax = 121, hsNorm = 3.3, hsCoef = 0.205, hsCost = 20, hsCd = 10, judgeCd = 10, judgeCost = 91, consTotal = 312, consCoef = 0.052, consCost = 565, consCd = 8, exoMin = 491, exoMax = 545, exoCost = 345, exoCd = 15, howMin = 489, howMax = 538, howCost = 425, howCd = 6, shockMin = 334, shockMax = 362, shockCost = 325, shockCd = 10, spellCoef = 0.429, hitRating = 10, critRating = 14, expRating = 10, procPPM = 1, agiPerCrit = 20, manaPerInt = 15, vengPct = 1, vengStacks = 5, chiliChance = 5, chiliCd = 10, chiliBase = 36, chiliCoef = 1.2, sapperDmg = 660, wfChance = 20, wfAP = 220, uwDur = 15, totgDmg = 150, jowMana = 59 }
 -- base stats of a level 60 paladin without gear, per race
 RS.RACE_BASE = { human = { str = 105, int = 70, crit = 3.99, mana = 2282 }, dwarf = { str = 107, int = 69, crit = 3.79, mana = 2267 }, undead = { str = 104, int = 68, crit = 3.89, mana = 2252 } }
 -- raid buffs and debuffs: the setting's key and its name
@@ -15,3 +15,96 @@ RS.SETTINGS = { { key = "opener", group = "rot", label = "Opener: Judgement of t
 RS.TALENTS = { { name = "Spiritual Focus", tree = 1, max = 5 }, { name = "Divine Strength", tree = 1, max = 5 }, { name = "Healing Light", tree = 1, max = 3 }, { name = "Reverence", tree = 1, max = 2 }, { name = "Improved Seals", tree = 1, max = 5 }, { name = "Purifying Power", tree = 1, max = 2 }, { name = "Divine Favor", tree = 1, max = 1 }, { name = "Illumination", tree = 1, max = 5 }, { name = "Holy Conduit", tree = 1, max = 2 }, { name = "Divine Precision", tree = 1, max = 2 }, { name = "Infusion of Light", tree = 1, max = 2 }, { name = "Oath of Light", tree = 1, max = 1 }, { name = "Consecrated Ground", tree = 1, max = 2 }, { name = "Holy Shock", tree = 1, max = 1 }, { name = "Boundless Light", tree = 1, max = 2 }, { name = "Holy Power", tree = 1, max = 5 }, { name = "Light's Vigil", tree = 1, max = 1 }, { name = "Divine Intellect", tree = 2, max = 5 }, { name = "Redoubt", tree = 2, max = 5 }, { name = "Precision", tree = 2, max = 3 }, { name = "Guardian's Favor", tree = 2, max = 2 }, { name = "Sacred Duty", tree = 2, max = 2 }, { name = "Templar's Bulwark", tree = 2, max = 1 }, { name = "Improved Hammer of Justice", tree = 2, max = 3 }, { name = "Shield Specialization", tree = 2, max = 2 }, { name = "Toughness", tree = 2, max = 5 }, { name = "Swift Judgement", tree = 2, max = 1 }, { name = "Improved Righteous Fury", tree = 2, max = 3 }, { name = "Anticipation", tree = 2, max = 5 }, { name = "Stoicism", tree = 2, max = 2 }, { name = "Holy Shield", tree = 2, max = 1 }, { name = "Reckoning", tree = 2, max = 5 }, { name = "Iron Creed", tree = 2, max = 3 }, { name = "Shieldsworn", tree = 2, max = 1 }, { name = "Deflection", tree = 3, max = 5 }, { name = "Benediction", tree = 3, max = 5 }, { name = "Improved Judgement", tree = 3, max = 2 }, { name = "Conviction", tree = 3, max = 3 }, { name = "Sanctified Judgement", tree = 3, max = 3 }, { name = "Vindication", tree = 3, max = 3 }, { name = "Unyielding Faith", tree = 3, max = 2 }, { name = "Seal of Command", tree = 3, max = 1 }, { name = "Pursuit of Justice", tree = 3, max = 2 }, { name = "Eye for an Eye", tree = 3, max = 2 }, { name = "Sacred Arbiter", tree = 3, max = 1 }, { name = "Two-Handed Weapon Specialization", tree = 3, max = 3 }, { name = "Turn Evil", tree = 3, max = 2 }, { name = "Repentance", tree = 3, max = 1 }, { name = "Vengeance", tree = 3, max = 3 }, { name = "Champion of the Light", tree = 3, max = 5 }, { name = "Unsealed Wrath", tree = 3, max = 1 } }
 -- ready builds: talent ranks by name
 RS.PRESETS = { raid = { ["Divine Strength"] = 5, ["Improved Seals"] = 5, ["Holy Conduit"] = 2, ["Divine Intellect"] = 5, Precision = 3, Benediction = 5, ["Improved Judgement"] = 2, Conviction = 3, ["Sanctified Judgement"] = 3, ["Unyielding Faith"] = 1, ["Seal of Command"] = 1, ["Pursuit of Justice"] = 2, ["Sacred Arbiter"] = 1, ["Two-Handed Weapon Specialization"] = 3, Repentance = 1, Vengeance = 3, ["Champion of the Light"] = 5, ["Unsealed Wrath"] = 1 }, shock = { ["Divine Strength"] = 5, ["Healing Light"] = 3, Reverence = 2, ["Improved Seals"] = 5, ["Purifying Power"] = 1, ["Holy Conduit"] = 2, ["Divine Precision"] = 2, ["Consecrated Ground"] = 2, ["Holy Shock"] = 1, Benediction = 5, ["Improved Judgement"] = 2, Conviction = 3, ["Sanctified Judgement"] = 3, ["Unyielding Faith"] = 2, ["Seal of Command"] = 1, ["Pursuit of Justice"] = 2, ["Sacred Arbiter"] = 1, ["Two-Handed Weapon Specialization"] = 3, Vengeance = 3, ["Champion of the Light"] = 3 }, ws = { ["Divine Strength"] = 5, ["Improved Seals"] = 5, ["Holy Conduit"] = 2, ["Divine Intellect"] = 5, Precision = 1, Benediction = 5, ["Improved Judgement"] = 2, Conviction = 3, ["Sanctified Judgement"] = 3, ["Unyielding Faith"] = 1, ["Seal of Command"] = 1, ["Pursuit of Justice"] = 2, ["Sacred Arbiter"] = 1, ["Two-Handed Weapon Specialization"] = 3, Repentance = 1, Vengeance = 3, ["Champion of the Light"] = 5, ["Unsealed Wrath"] = 1, Reverence = 2 } }
+-- the effects of items, weapon enchants ("e" + enchant id) and set bonuses ("s" + set id + ":" + pieces) that the fight plays
+RS.PROCS = {
+  [647] = { ppm = 1.05, buff = { str = 200, dur = 12 }, tx = "+200 Strength", n = "Destiny" },
+  [1263] = { ppm = 0.95, dd = { 200, 300, "phys" }, n = "Brain Hacker" },
+  [2915] = { ppm = 0.95, dd = { 270, 330, "fire" }, dot = { 25, 2, 4, "fire" }, n = "Taran Icebreaker" },
+  [7959] = { dd = { 100, 100, "nature" }, dot = { 30, 5, 12, "nature" }, n = "Blight" },
+  [7960] = { no = "the shield does no damage", n = "Truesilver Champion" },
+  [9372] = { ppm = 1.45, dd = { 95, 223, "shadow" }, late = { 159, 5, "shadow" }, n = "Sul'thraze the Lasher" },
+  [10626] = { buff = { ap = 102, haste = 6, dur = 15 }, tx = "+102 Attack Power and 6% attack speed", n = "Ragehammer" },
+  [11607] = { armor = { 300, 20 }, tx = "\226\136\146300 armor on the boss", n = "Dark Iron Sunderer" },
+  [11608] = { no = "a stun does no damage", n = "Dark Iron Pulverizer" },
+  [11803] = { ppm = 2, dd = { 182, 182, "fire" }, n = "Force of Magma" },
+  [11809] = { ppm = 1.9, dd = { 133, 175, "fire" }, aoe = 99, n = "Flame Wrath" },
+  [11815] = { pct = 1, icd = 2, on = "white wf hs", extra = true, n = "Hand of Justice" },
+  [11816] = { ppm = 2, dd = { 109, 109, "phys" }, n = "Angerforge's Battle Axe" },
+  [12243] = { dd = { 171, 171, "fire" }, dot = { 6, 2, 3, "fire" }, n = "Smoldering Claw" },
+  [12463] = { ppm = 1.5, dot = { 23, 1, 7, "bleed" }, n = "Drakefang Butcher" },
+  [12528] = { no = "a stun does no damage", n = "The Judge's Gavel" },
+  [12583] = { ppm = 1, dd = { 373, 523, "phys" }, exec = { 25, 1.5 }, n = "Blackhand Doomsaw" },
+  [12592] = { ppm = 1, alt = { { w = 3, s = "Flames of Shahram", dd = { 90, 160, "fire" }, aoe = 99, nc = true }, { w = 3, s = "Will of Shahram", buff = { all = 50, dur = 20 }, tx = "+50 all stats" }, { w = 1, s = "Blessing of Shahram", mana = 200 }, { w = 3 } }, n = "Blackblade of Shahram" },
+  [12632] = { pct = 100, on = "white wf hs", dd = { 3, 3, "nature" }, n = "Storm Gauntlets" },
+  [12769] = { no = "Holy damage is not resisted, so lower resistances change nothing", n = "Bleakwood Hew" },
+  [12790] = { ppm = 1, buff = { str = 120, dur = 30 }, tx = "+120 Strength", n = "Arcanite Champion" },
+  [12796] = { no = "a stun does no damage", n = "Hammer of the Titans" },
+  [12802] = { pct = 5, icd = 60, on = "white wf hs", buff = { crit = 4, dur = 20 }, tx = "+4% crit", n = "Darkspear" },
+  [12969] = { ppm = 0.9, dot = { 51, 2, 5, "nature" }, aoe = 99, n = "Seeping Willow" },
+  [13053] = { ppm = 0.75, dd = { 161, 301, "shadow" }, n = "Doombringer" },
+  [13060] = { ppm = 3, dd = { 75, 75, "phys" }, n = "The Needler" },
+  [13285] = { ppm = 1.95, dd = { 50, 150, "phys" }, dot = { 13, 1, 10, "bleed" }, n = "The Blackrock Slicer" },
+  [13348] = { ppm = 1.1, dd = { 150, 150, "shadow" }, dot = { 34, 2, 3, "shadow" }, n = "Demonshear" },
+  [13393] = { ppm = 2, buff = { str = 53, dur = 20 }, tx = "+53 Strength", n = "Malown's Slam" },
+  [13982] = { pct = 100, on = "white wf hs", dd = { 22, 33, "frost" }, ah = true, n = "Warblade of Caer Darrow" },
+  [13983] = { ppm = 1.9, dot = { 42, 3, 4, "nature" }, n = "Gravestone War Axe" },
+  [14531] = { ppm = 3, dot = { 15, 2, 7, "shadow" }, n = "Frightskull Shaft" },
+  [14541] = { ppm = 1.9, dot = { 49, 1, 5, "shadow" }, sure = true, n = "Barovian Family Sword" },
+  [15418] = { ppm = 1.85, dd = { 211, 293, "nature" }, n = "Shimmering Platinum Warhammer" },
+  [17223] = { ppm = 1.5, dd = { 150, 250, "nature" }, aoe = 3, chain = 0.7, n = "Thunderstrike" },
+  [17730] = { ppm = 1.2, dot = { 30, 1, 7, "bleed" }, n = "Gatorbite Axe" },
+  [17766] = { ppm = 1.8, dd = { 168, 168, "phys" }, armor = { 100, 30 }, tx = "\226\136\146100 armor on the boss", n = "Princess Theradras' Scepter" },
+  [18324] = { ppm = 1.95, dd = { 70, 70, "nature" }, n = "Waveslicer" },
+  [18383] = { pct = 100, on = "white wf hs", dd = { 2, 2, "arcane" }, n = "Force Imbued Gauntlets" },
+  [18410] = { no = "run speed does no damage", n = "Sprinter's Sword" },
+  [18538] = { dd = { 138, 212, "fire" }, n = "Treant's Bane" },
+  [19323] = { no = "a stun does no damage", n = "The Unstoppable Force" },
+  [22268] = { pct = 8, on = "cast", buff = { sp = 35, dur = 10 }, tx = "+35 spell damage", n = "Draconic Infused Emblem" },
+  [22321] = { ppm = 1.95, on = "white wf hs", dd = { 112, 168, "fire" }, n = "Heart of Wyrmthalak" },
+  [260186] = { dd = { 105, 175, "shadow" }, n = "Darkblade" },
+  [260205] = { ppm = 2.95, on = "white wf hs seal joc cast", dd = { 69, 81, "arcane" }, n = "Highborne Research Tablet" },
+  [274270] = { ppm = 1.1, dd = { 100, 152, "nature" }, n = "Weed Whacker" },
+  [275645] = { no = "healing does no damage", n = "Reforged Spear" },
+  [279480] = { ppm = 1.5, dot = { 14, 2, 10, "bleed" }, n = "Bigger Rock on Bigger Stick" },
+  [280032] = { pct = 15, icd = 3, on = "white wf hs seal joc cast how", alt = { { w = 1, s = "on the target", dd = { 60, 60, "nature" } }, { w = 1 } }, n = "Bolt's Charged Eyeball" },
+  [280080] = { ppm = 1.35, on = "white wf hs", alt = { { w = 1, s = "Wax", dd = { 189, 189, "arcane" } }, { w = 1, s = "Wane", buff = { str = 40, dur = 10 }, tx = "+40 Strength" } }, n = "Claymore of Two Moons" },
+  ["e1900"] = { ppm = 1, buff = { str = 100, dur = 15 }, tx = "+100 Strength", n = "Crusader" },
+  ["e7940"] = { buff = { str = 120, dur = 20 }, tx = "+120 Strength", n = "Grand Crusader" },
+  ["e7942"] = { pct = 7, on = "cast judge", buff = { sp = 70, dur = 20 }, tx = "+70 spell damage", n = "Grand Sorcerer" },
+  ["e36"] = { pct = 15, dd = { 9, 13, "fire" }, aoe = 99, n = "Fiery Blaze" },
+  ["s1:4"] = { pct = 7.2, on = "white wf hs", buff = { haste = 5, dur = 10 }, tx = "+5% attack speed", n = "The Gladiator (4)" },
+  ["s123:3"] = { pct = 10.7, on = "white wf", dot = { 7, 1, 10, "bleed" }, sure = true, n = "Bloodmail Regalia (3)" },
+  ["s141:3"] = { pct = 10, on = "white wf hs", dd = { 30, 50, "fire" }, n = "Volcanic Armor (3)" },
+  ["s142:2"] = { pct = 10, on = "white wf hs", dd = { 15, 25, "nature" }, n = "Stormshroud Armor (2)" },
+  ["s188:5"] = { ppm = 0.9, on = "white wf cast cons judge sealcast", buff = { sp = 65, dur = 10 }, tx = "+65 spell damage", n = "Lightforge Armor (5)" },
+  ["s1673:4"] = { ppm = 0.9, on = "white wf cast cons judge sealcast", buff = { sp = 65, dur = 10 }, tx = "+65 spell damage", n = "Soulforge Armor (4)" },
+  ["s516:4"] = { ppm = 0.9, on = "white wf cast cons judge sealcast", buff = { sp = 65, dur = 10 }, tx = "+65 spell damage", n = "Soulforge Armor (4)" },
+  ["s187:5"] = { ppm = 1, on = "white wf cast cons judge sealcast", buff = { sp = 65, dur = 10 }, tx = "+65 spell damage", n = "The Elements (5)" },
+  ["s2071:2"] = { pct = 10, on = "white wf hs", buff = { ap = 40, dur = 15 }, tx = "+40 Attack Power", n = "Teachings of the Furbolgs (2)" },
+  ["s2130:3"] = { pct = 15, icd = 45, on = "white wf", dd = { 140, 140, "shadow" }, n = "Rider of the Plaguelands (3)" },
+  ["s2131:2"] = { on = "white wf hs", buff = { str = 50, dur = 10 }, tx = "+50 Strength", n = "Partners in Crime (2)" },
+  ["s2136:5"] = { ppm = 1, on = "white wf hs", buff = { crit = 2, dur = 20 }, tx = "+2% crit", n = "Defias Enforcer's Garb (5)" },
+  ["s186:5"] = { pct = 5, on = "white wf", mana = 200, n = "Beaststalker Armor (5)" },
+  ["s181:5"] = { pct = 5, on = "cast cons judge sealcast", mana = 200, n = "Magister's Regalia (5)" },
+  ["s182:5"] = { pct = 5, on = "cast cons judge sealcast", mana = 200, n = "Vestments of the Devout (5)" },
+  ["s506:3"] = { pct = 20, on = "judge", mana = 100, n = "Battlegear of Eternal Justice (3)" },
+}
+-- the sets with such a bonus: how many pieces it takes and the items that count
+RS.PROC_SETS = {
+  { key = "s1:4", pieces = 4, name = "The Gladiator", items = { [11726] = true, [11731] = true, [11730] = true, [11729] = true, [11728] = true, [277117] = true } },
+  { key = "s123:3", pieces = 3, name = "Bloodmail Regalia", items = { [14614] = true, [14616] = true, [14615] = true, [14611] = true, [14612] = true } },
+  { key = "s141:3", pieces = 3, name = "Volcanic Armor", items = { [15055] = true, [15053] = true, [15054] = true } },
+  { key = "s142:2", pieces = 2, name = "Stormshroud Armor", items = { [21278] = true, [15058] = true, [15056] = true, [15057] = true } },
+  { key = "s188:5", pieces = 5, name = "Lightforge Armor", items = { [16726] = true, [16727] = true, [16728] = true, [16729] = true, [16725] = true, [16724] = true, [16723] = true, [16722] = true } },
+  { key = "s1673:4", pieces = 4, name = "Soulforge Armor", items = { [226980] = true, [226988] = true, [226972] = true, [226979] = true, [226987] = true, [226969] = true, [226986] = true, [226985] = true, [226992] = true, [226989] = true, [226997] = true, [226991] = true, [226983] = true, [226974] = true, [226990] = true } },
+  { key = "s516:4", pieces = 4, name = "Soulforge Armor", items = { [22092] = true, [22086] = true, [22088] = true, [22093] = true, [22087] = true, [22089] = true, [22091] = true, [22090] = true } },
+  { key = "s187:5", pieces = 5, name = "The Elements", items = { [16666] = true, [16667] = true, [16668] = true, [16669] = true, [16670] = true, [16672] = true, [16673] = true, [16671] = true } },
+  { key = "s2071:2", pieces = 2, name = "Teachings of the Furbolgs", items = { [268873] = true, [21326] = true } },
+  { key = "s2130:3", pieces = 3, name = "Rider of the Plaguelands", items = { [284100] = true, [284102] = true } },
+  { key = "s2131:2", pieces = 2, name = "Partners in Crime", items = { [284715] = true } },
+  { key = "s2136:5", pieces = 5, name = "Defias Enforcer's Garb", items = { [276746] = true, [287020] = true, [287019] = true, [287021] = true, [276741] = true } },
+  { key = "s186:5", pieces = 5, name = "Beaststalker Armor", items = { [16674] = true, [16677] = true, [16678] = true, [16679] = true, [16675] = true, [16676] = true, [16680] = true, [16681] = true } },
+  { key = "s181:5", pieces = 5, name = "Magister's Regalia", items = { [16688] = true, [16686] = true, [16687] = true, [16689] = true, [16682] = true, [16684] = true, [16685] = true, [16683] = true } },
+  { key = "s182:5", pieces = 5, name = "Vestments of the Devout", items = { [16690] = true, [16693] = true, [16694] = true, [16695] = true, [16692] = true, [16691] = true, [16696] = true, [16697] = true } },
+  { key = "s506:3", pieces = 3, name = "Battlegear of Eternal Justice", items = { [21396] = true } },
+}

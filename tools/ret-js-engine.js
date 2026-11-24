@@ -7,7 +7,7 @@ if (!fs.existsSync(file)) throw new Error('ret-sim.html not found at ' + file + 
 const page = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
 const a = page.indexOf('/* ===== ENGINE START ===== */'), b = page.indexOf('/* ===== ENGINE END ===== */');
 if (a < 0 || b < a) throw new Error('engine markers not found in ' + file);
-const engine = new Function(page.slice(a, b) + '\nreturn { FIELDS, MODES, SEAL, derive, simulate, resolveMode };')();
+const engine = new Function(page.slice(a, b) + '\nreturn { FIELDS, MODES, SEAL, derive, simulate, resolveMode, procList, PROCS };')();
 // applyTalents(v) reads ranks through rk(name); here it is given a ranks table instead of the page's state
 const ta = page.indexOf('function applyTalents(v){'), tb = page.indexOf('\n}\n', ta);
 if (ta < 0) throw new Error('applyTalents not found');
