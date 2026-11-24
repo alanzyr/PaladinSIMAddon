@@ -119,7 +119,7 @@ function RS.simulateOnce(c, mode, seed)
       local sc = R() * 100 < c.crit + pCrit(t)
       if sc then d = d * 2; onCrit(t) end
       rec('Seal of Righteousness' .. tag, d, sc and 'crit' or 'hit')
-      if not echo then itemProcs(t, 'seal') end
+      if not echo then itemProcs(t, 'sor') end
     elseif type == 'soc' then
       if R() < c.socPPM * c.wSpeed / 60 then
         local res = rollMelee(true)
@@ -129,7 +129,7 @@ function RS.simulateOnce(c, mode, seed)
         if res == 'crit' then d = d * 2 end
         rec('Seal of Command' .. tag, d, res)
         if res == 'crit' then onCrit(t) end
-        chili(t); if not echo then itemProcs(t, 'seal') end
+        chili(t); if not echo then itemProcs(t, 'soc') end
       end
     elseif type == 'fury' then
       local d = (c.furyFlat + c.furyCoef * spNow(t)) * c.impSeals * holy(t)
@@ -199,7 +199,7 @@ function RS.simulateOnce(c, mode, seed)
     if r == 'crit' then d = d * 2 end
     rec(name, d, r)
     if r == 'crit' then onCrit(t) end
-    if isC then wf(t); chili(t); itemProcs(t, 'joc'); itemProcs(t, 'joc') end
+    if isC then wf(t); chili(t); itemProcs(t, 'joc'); itemProcs(t, 'joc2') end
   end
 
   local function castSeal(type, t)
@@ -328,7 +328,7 @@ function RS.simulateOnce(c, mode, seed)
     for i = 1, #PR do
       local x = PR[i]
       local p = x.p
-      if ev ~= 'joc' and ev ~= 'chain' and ev ~= 'sealcast' then
+      if ev ~= 'joc' and ev ~= 'joc2' and ev ~= 'chain' and ev ~= 'sealcast' then
         if x.need > 0 then
           if t > x.needEnd then x.need = 0
           else

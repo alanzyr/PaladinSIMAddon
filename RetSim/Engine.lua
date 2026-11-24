@@ -118,7 +118,7 @@ end
 -- ---------------------------------------------------------------------------------------------------------------------
 -- What the fight plays for the worn items' effects (the website's procList). defs: entries of RS.PROCS, each with the
 -- name n to show. on: the events that roll it (default: every melee hit). alt: one of several outcomes, picked by weight w.
-local PROC_EV = 'white wf hs seal joc'
+local PROC_EV = 'white wf hs soc sor joc joc2'
 -- combat potions: drunk at the pull and again when the potion cooldown is over
 RS.COMBAT_POTS = {
   frenzy = { n = 'Major Frenzy Potion', use = { cd = 120 }, buff = { ap = 80, dur = 30 }, tx = '+80 Attack Power' },
