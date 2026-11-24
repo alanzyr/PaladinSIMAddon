@@ -193,7 +193,7 @@ end
 -- A pasted code -> its kind ('settings' or 'gear') and its content, or nil and a plain sentence.
 function RS.decodeCode(text)
   text = tostring(text or ''):gsub('%s', '')
-  local prefix, body = text:match('^(RS[SA]1):(.+)$')
+  local prefix, body = text:match('^(RS[SAG]1):(.+)$')
   if not prefix then
     if text == '' then return nil, 'Paste a settings code first. The website makes one under Export > Addon settings.' end
     if text:find('^RS[01]:') then return nil, 'That is a share code of the website. The addon reads settings codes: on the website, choose Export > Addon settings.' end
@@ -204,6 +204,7 @@ function RS.decodeCode(text)
   if raw then data, why = jsonDecode(raw) end
   if type(data) ~= 'table' then return nil, 'That code is incomplete or damaged' .. (why and (' (' .. why .. ')') or '') .. '. Copy all of it and try again.' end
   if prefix == 'RSA1' then return 'gear', data end
+  if prefix == 'RSG1' then return 'list', data end   -- a gear list made by the website (GearList.lua)
   if type(data.settings) ~= 'table' then return nil, 'That settings code holds no settings.' end
   return 'settings', data
 end

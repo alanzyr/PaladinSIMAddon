@@ -25,7 +25,7 @@ If you play a Warlock, you want Xn's addon: [CurseForge](https://www.curseforge.
 [original repository](https://github.com/XNWLK/WarlockSIMAddon). This repository only holds the paladin addon, in the
 folder `RetSim`.
 
-> **Status: version 0.7, a test version.** It reads your character, plays the fights, shows your DPS with a line per
+> **Status: version 0.8, a test version.** It reads your character, plays the fights, shows your DPS with a line per
 > damage source, and sims a single item against what you wear. Built for the WoW: Forever client (interface 16001).
 
 ## Install
@@ -69,6 +69,10 @@ character's level and race, not its name.
   [website](https://alanzyr.github.io/Forever-Ret-Sim/), choose **Export > Addon settings** there and paste the code in the
   addon with **Import**. The fights are then played with those settings, consumables included. **Settings code** makes the
   same kind of code from the addon, for the website's **Import > Addon**.
+- **Gear list:** build the set you are aiming for on the [website](https://alanzyr.github.io/Forever-Ret-Sim/), choose
+  **Export > Addon gear list** there and paste the code in the addon with **Import**. **Gear list** (or `/rsim list`) then
+  shows every piece, where it comes from, the enchant it should carry, and whether you wear it, have it in your bags
+  or still miss it. The list is kept between sessions and follows your bags and gear while it is open.
 - **Raid buffs and debuffs** on or off in one click.
 - **Your weapon and its enchant:** damage and speed from the tooltip; Blade of Hanna's proc and Libram of Law are played
   in the fight.

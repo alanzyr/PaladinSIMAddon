@@ -97,6 +97,8 @@ local function build()
   ui.import:SetPoint('LEFT', ui.settings, 'RIGHT', 6, 0)
   ui.dump = button(frame, 'Dump', 56, function() RS.showDump(RS.dumpText()) end)
   ui.dump:SetPoint('LEFT', ui.buffs, 'RIGHT', 6, 0)
+  ui.list = button(frame, 'Gear list', 76, function() RS.toggleGearList() end)
+  ui.list:SetPoint('LEFT', ui.import, 'RIGHT', 6, 0)
 
   -- progress while a sim runs
   frame:SetScript('OnUpdate', function()
@@ -193,10 +195,10 @@ end
 
 -- The window to paste a settings code into: Ctrl+V, then Import.
 function RS.showImport()
-  RS.showDump('', 'Paste a settings code from the website here (Ctrl+V), then press Import.', function(text)
+  RS.showDump('', 'Paste a settings code or a gear list code from the website here (Ctrl+V), then press Import.', function(text)
     local ok, msg = RS.importCode(text)
     RS.print(msg)
-    if ok then dumpFrame:Hide(); RS.showWindow() else dumpFrame.head:SetText('|cffff6060' .. msg .. '|r') end
+    if ok then dumpFrame:Hide(); if tostring(text):find('RSG1:', 1, true) then RS.showGearList() else RS.showWindow() end else dumpFrame.head:SetText('|cffff6060' .. msg .. '|r') end
   end)
 end
 

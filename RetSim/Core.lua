@@ -179,6 +179,7 @@ function RS.settingsCode() return RS.encodeSettings(RS.settingsNow()) end
 function RS.importCode(text)
   local kind, data = RS.decodeCode(text)
   if not kind then return false, data end
+  if kind == 'list' then return RS.setGearList(data) end
   if kind == 'gear' then return false, 'That is a gear code for the website. The addon reads your gear from the game itself; paste a settings code here (website: Export > Addon settings).' end
   local known, taken, skipped = {}, 0, {}
   for i = 1, #RS.SETTINGS do known[RS.SETTINGS[i].key] = RS.SETTINGS[i] end
@@ -302,6 +303,7 @@ local HELP = {
   '/rsim import - paste a settings code from the website (Export > Addon settings)',
   '/rsim reset - every setting back to the website\'s defaults',
   '/rsim minimap - show or hide the minimap button',
+  '/rsim list - your gear list from the website: the pieces, where they come from, which you have',
   '/rsim test - the maths check against the website',
   '/rsim dump - what the game returned, as text to copy and send',
 }
@@ -358,6 +360,8 @@ SlashCmdList['RETSIM'] = function(msg)
       local ok, msg = RS.importCode(arg)
       RS.print(msg); if RS.refresh then RS.refresh(not ok and msg or nil) end
     elseif RS.showImport then RS.showImport() end
+  elseif cmd == 'list' then
+    if RS.toggleGearList then RS.toggleGearList() end
   elseif cmd == 'reset' then
     RS.db.settings = {}; RS.db.options.mode = 'auto'
     if RS.char then RS.values, RS.valueNotes = RS.valuesFromSheet(RS.char, RS.db.settings) end

@@ -238,6 +238,26 @@ step('the minimap button: click sims the character, right-click opens and closes
     assert(RSX.settingsCode() == before, "the settings changed"); RetSimDumpFrame:Hide(); return why`);
   step('/rsim import with the code on the chat line; /rsim reset puts the defaults back', `SlashCmdList.RETSIM("import " .. ${JSON.stringify('RSS1:' + Buffer.from(JSON.stringify({ v: 1, settings: { sapper: true } })).toString('base64'))}); assert(RSX.db.settings.sapper == true)
     SlashCmdList.RETSIM("reset"); assert(next(RSX.db.settings) == nil and RSX.db.options.mode == "auto" and #RSX.consumablesNow() == 0); return MOCK.chat[#MOCK.chat]`);
+  // the gear list: a code as the website makes it (Export > Addon gear list)
+  const listJson = JSON.stringify({ v: 1, name: 'My set', items: [
+    { s: 16, id: 5001, n: 'The Unstoppable Force', q: 4, src: 'Vendor: Stormpike quartermaster', e: 'Crusader', ei: 1900 },
+    { s: 12, id: 5004, n: 'Plain Ring', q: 2, src: 'Quest: A ring – somewhere' },
+    { s: 13, id: 5003, n: 'Band of Julio', q: 4, src: '' },
+    { s: 1, id: 5010, n: 'Missing Helm', q: 3, src: 'Drop: General Drakkisath, Upper Blackrock Spire', e: 'Arcanum of Rapidity', ei: 2543 },
+    { s: 99, id: 1, n: 'Nonsense slot' } ] }).replace(/[^\x00-\x7f]/g, c => String.fromCharCode(92) + 'u' + c.charCodeAt(0).toString(16).padStart(4, '0'));
+  const listCode = 'RSG1:' + Buffer.from(listJson).toString('base64');
+  step('a gear list code from the website: taken by Import, kept, and shown with what you wear and carry', `MOCK.bags = { [0] = { [3] = 5003 } }
+    local ok, msg = RSX.importCode(${JSON.stringify(listCode)}); assert(ok, msg); assert(#RSX.db.gearList.items == 4 and RSX.db.gearList.name == "My set", "items kept")
+    local rows, have = RSX.gearListStatus(); assert(#rows == 4 and have == 3, "have " .. tostring(have))
+    assert(rows[1].item.id == 5010 and rows[1].state == "need", "the helm is missing and comes first")
+    assert(rows[2].item.id == 5004 and rows[2].state == "worn", "a ring counts in either ring slot")
+    assert(rows[3].item.id == 5003 and rows[3].state == "bags", "the band is in a bag")
+    assert(rows[4].item.id == 5001 and rows[4].state == "worn" and rows[4].enchant == true, "the weapon with its enchant")
+    SlashCmdList.RETSIM("list"); assert(RetSimGearFrame and RetSimGearFrame:IsShown(), "the window")
+    assert(MOCK.findLike("FontString", "Missing Helm") and MOCK.findLike("FontString", "General Drakkisath") and MOCK.findLike("FontString", "You have 3 of 4"), "the lines")
+    SlashCmdList.RETSIM("list"); assert(not RetSimGearFrame:IsShown(), "closed again")
+    local ok2, why = RSX.importCode(${JSON.stringify('RSG1:' + Buffer.from(JSON.stringify({ v: 1, items: [] })).toString('base64'))}); assert(not ok2 and #RSX.db.gearList.items == 4, "an empty list changes nothing")
+    return msg`);
 }
 console.log(host.limits());
 console.log(failed ? failed + ' step(s) FAILED' : 'all steps passed');
