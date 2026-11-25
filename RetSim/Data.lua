@@ -118,7 +118,7 @@ RS.PROC_SETS = {
   { key = "s141:3", pieces = 3, name = "Volcanic Armor", items = { [15055] = true, [15053] = true, [15054] = true } },
   { key = "s142:2", pieces = 2, name = "Stormshroud Armor", items = { [21278] = true, [15058] = true, [15056] = true, [15057] = true } },
   { key = "s188:5", pieces = 5, name = "Lightforge Armor", items = { [16726] = true, [16727] = true, [16728] = true, [16729] = true, [16725] = true, [16724] = true, [16723] = true, [16722] = true } },
-  { key = "s1673:4", pieces = 4, name = "Soulforge Armor", items = { [226980] = true, [226988] = true, [226972] = true, [226971] = true, [226970] = true, [226979] = true, [226987] = true, [226969] = true, [226986] = true, [226985] = true, [226973] = true, [226992] = true, [226989] = true, [226997] = true, [226991] = true, [226983] = true, [226974] = true, [226975] = true, [226990] = true } },
+  { key = "s1673:4", pieces = 4, name = "Soulforge Armor", items = { [226980] = true, [226988] = true, [226972] = true, [226971] = true, [226970] = true, [226979] = true, [226987] = true, [226969] = true, [226986] = true, [226985] = true, [226973] = true, [226992] = true, [226989] = true, [226976] = true, [226991] = true, [226983] = true, [226974] = true, [226975] = true, [226990] = true } },
   { key = "s187:5", pieces = 5, name = "The Elements", items = { [16666] = true, [16667] = true, [16668] = true, [16669] = true, [16670] = true, [16672] = true, [16673] = true, [16671] = true } },
   { key = "s2071:2", pieces = 2, name = "Teachings of the Furbolgs", items = { [268873] = true, [21326] = true } },
   { key = "s2130:3", pieces = 3, name = "Rider of the Plaguelands", items = { [284100] = true, [284102] = true } },
