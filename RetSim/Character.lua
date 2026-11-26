@@ -77,7 +77,7 @@ function RS.valuesFromSheet(ch, settings)
   end
   -- your settings on top, as the website does after gear: consumables, and another paladin's Judgement of the Crusader
   RS.applyConsumables(v)
-  if v.jotcExt then v.opener = false end
+  if v.jotcExt then v.opener = false else v.jotcExtFervor = false end   -- their libram only matters when the Judgement is theirs
   if ch.otherAuras and #ch.otherAuras > 0 then
     notes[#notes + 1] = 'Other buffs on you count as part of your gear: ' .. table.concat(ch.otherAuras, ', ') .. '.'
   end
